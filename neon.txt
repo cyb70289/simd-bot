@@ -1,0 +1,266 @@
+This doc lists Arm64 NEON-128 intrinsics, without 64-bit ones.
+
+Intrinsics are grouped by functionalities. Each group strats with a line of the
+format "NEON: function", followed by an optional description, and some fields:
+- intrin: lists all intrinsics names belong to this function group
+- note: notes to take care, optional
+- example: sample code or text to explain the details, optional
+
+Intrinsics naming follow shell glob syntax to simplify various vector types.
+Ex. NEON vector addition intrisics are named as below:
+"vaddq_{s,u}{8,16,32,64}" for signed(s), unsigned(u) integer of 8,16,32,64 bits
+"vaddq_f{32,64}" for float32 and float64
+
+
+NEON: addition
+add two vectors lane by lane vertically
+- intrin
+  vaddq_{s,u}{8,16,32,64}
+  vaddq_f{32,64}
+
+
+NEON: widening addition #1
+add two vectors and widen the result
+- intrin
+  vaddl_{s,u}{8,16,32}
+  vaddl_high_{s,u}{8,16,32}
+  vaddl_{s,u}{8,16,32}
+  vaddl_high_{s,u}{8,16,32}
+- example
+  int32x4_t va, vb;
+  int64x2_t vcl, vch;
+  vcl = vaddl_s32(vget_low_s32(va), vget_low_s32(vb));
+  vch = vaddl_high_s32(va, vb);
+      +----+----+----+----+
+   va | a3 | a2 | a1 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+   vb | b3 | b2 | b1 | b0 |
+      +----+----+----+----+
+  --------------------------
+      +---------+---------+
+  vcl | a1 + b1 | a0 + b0 |
+      +---------+---------+
+      +---------+---------+
+  vch | a3 + b3 | a2 + b2 |
+      +---------+---------+
+
+
+NEON: widening addition #2
+add a vector to a wide vector
+- intrin
+  vaddw_{s,u}{8,16,32}
+  vaddw_high_{s,u}{8,16,32}
+  vaddw_{s,u}{8,16,32}
+  vaddw_high_{s,u}{8,16,32}
+- example
+  int64x2_t va, vcl, vch;
+  int32x4_t vb;
+  vcl = vaddw_s32(va, vget_low_s32(vb));
+  vch = vaddw_high_s32(va, vb);
+      +---------+---------+
+   va |    a1   |    a0   |
+      +---------+---------+
+      +----+----+----+----+
+   vb | b3 | b2 | b1 | b0 |
+      +----+----+----+----+
+  ---------------------------
+      +---------+---------+
+  vcl | a1 + b1 | a0 + b0 |
+      +---------+---------+
+      +---------+---------+
+  vch | a1 + b3 | a1 + b2 |
+      +---------+---------+
+
+
+NEON: halving addition
+add two vectors and halving the result
+- intrin
+  vhaddq_{s,u}{8,16,32}
+- note
+  the result is shifted right by 1 bit, not divide by 2
+- example
+  vc = vhaddq_s32(va, vb) --> vc[n] = (va[n] + vb[n]) >> 1
+
+
+NEON: narrowing addition
+add two vectors and narrow the result
+- intrin
+  vaddhn_{s,u}{16,32,64}
+- note
+  only the most significant half of the result is preserved
+- example
+  int64x2_t va, vb;
+  int32x2_t vc = vaddhn_s64(va, vb);
+      +---------+---------+
+   va |    a1   |    a0   |
+      +---------+---------+
+      +---------+---------+
+   vb |    b1   |    b0   |
+      +---------+---------+
+  --------------------------
+                +----+----+
+   vc           | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
+                +----+----+
+
+
+# TODO
+# NEON: vaddhn_high_{s,u}{16,32,64}
+
+
+NEON: saturating addition
+- intrin
+  vqaddq_{s,u}{8,16,32,64}
+  vuqaddq_s{8,16,32,64}
+  vsqaddq_u{8,16,32,64}
+- note
+  vqadd: both operand are of same type
+  vuqadd: int + uint -> int
+  vsqadd: uint + int -> uint
+
+
+NEON: saturating addtion for scalar
+- intrin
+  vqaddb_{s,u}8
+  vqaddh_{s,u}16
+  vqadds_{s,u}32
+  vqaddd_{s,u}64
+  vuqaddb_s8
+  vuqaddh_s16
+  vuqadds_s32
+  vuqaddd_s64
+  vsqaddb_u8
+  vsqaddh_u16
+  vsqadds_u32
+  vsqaddd_u64
+- note
+  vqadd: both operand are of same type
+  vuqadd: int + uint -> int
+  vsqadd: uint + int -> uint
+
+
+NEON: multiply
+- intrin
+  vmulq_{s,u}{8,16,32}
+  vmulq_f{32,64}
+  vmulxq_f{32,64}
+- note
+  vmulxq multiplies two fp vectors with extended precision
+
+
+NEON: multiply by lane
+multiply a vector with one lane of another vector
+- intrin
+  vmulxq_laneq_f{32,64}
+- sample
+  vmulxq_laneq_f32(va, vb, lane) --> va * vb[lane]
+
+
+NEON: multiply scalar by lane
+multiply a scalar with a vector lane
+- intrin
+  vmulxs_laneq_f32
+  vmulxd_laneq_f64
+
+
+NEON: multiply-accumulate
+multiply two vectors and add-to/subtract-from another
+- name
+  vmlaq_{s,u}{8,16,32} (add)
+  vmlaq_f{32,64}       (add)
+  vmlsq_{s,u}{8,16,32} (sub)
+  vmlsq_f{32,64}       (sub)
+- note
+  for fp, use fused multiply-accumulate instead
+- sampe:
+  vmlaq_s32(va, vb, vc) --> va + vb * vc
+
+
+NEON: multiply-accumulate and widen
+multiply two vectors, wide the result, and add-to/subtract-from another
+- name
+  vmlal_{s,u}{8,16,32}      (add)
+  vmlal_high_{s,u}{8,16,32} (add)
+  vmlsl_{s,u}{8,16,32}      (sub)
+  vmlsl_high_{s,u}{8,16,32} (sub)
+- note
+  reference "NEON: widening addition #1" to see how widen works
+- example
+  vmlal_s32(va64x2, vb32x2, vc32x2) --> va + widen(vb * vc)
+  vmlal_high_s32(va64x2, vb32x4, vc32x4) --> va + widen(vb[3,2] * vc[3,2])
+
+
+NEON: fused multiply-accumulate
+multiply two fp vectors and add-to/subtract-from another
+- name
+  vfmaq_f{32,64} (add)
+  vfmsq_f{32,64} (sub)
+- example
+  vfmaq_f32(va, vb, vc) --> va + vb * vc
+
+
+NEON: fused multiply-accumulate by lane
+multiply vector with one lane of another vector, and \
+add-to/subtract-from a third vector
+- name
+  vfmaq_laneq_f{32,64} (add)
+  vfmsq_laneq_f{32,64} (sub)
+- example
+  vfmaq_laneq_f32(va, vb, vc, lane) --> va + vb * vc[lane]
+
+
+NEON: fused multiply-accumulate scalar by vector lane
+multiply a scalar with one lane of a vector, and \
+add-to/subtract-from another scalar
+- name
+  vfmas_laneq_f32 (add)
+  vfmad_landq_f64 (add)
+  vfmss_laneq_f32 (sub)
+  vfmsd_landq_f64 (sub)
+- example
+  vfmas_laneq_f32(a, b, vc, lane) --> a + b * vc[lane]
+
+
+NEON: saturate multiply
+multiply two vectors, double then saturate the result, and
+keep the most significant half
+- name
+  vqdmulhq_s{16,32}  (truncated)
+  vqrdmulhq_s{16,32} (rounded)
+- example
+  vc32x4 = vqdmulhq_s32(va32x4, vb32x4) --> \
+  vc[n] = high32(saturate(2 * va[n] * vb[n]))
+
+
+NEON: saturate multiply and widen
+multiply two vectors, saturate the result, and put to a wider vector
+- name
+  vqdmull_s{16,32}
+  vqdmull_high_s{16,32}
+- example
+  vc64x2 = vqdmull_s32(va32x2, vb32x2) \
+  --> vc = saturate(2 * widen(va * vb))
+  vc64x2 = vqdmull_high_s32(va32x4, vb32x4) \
+  --> vc = saturate(2 * widen(va[2,3] * vb[2,3])
+
+
+NEON: saturating multiply scalars
+- name
+  vqdmulhh_s16  (truncated)
+  vqdmulhs_s32  (truncated)
+  vqrdmulhh_s16 (rounded)
+  vqrdmulhs_s32 (rounded)
+
+
+NEON: widening multiply
+- name
+  vmull_{s,u}{8,16,32}
+  vmull_high_{s,u}{8,16,32}
+- note
+  reference "NEON: widening addition #1" to see how widen works
+
+
+# TODO
+# NEON: saturating multiply-accumulate
+# NEON: saturating multiply by scalar and widen
+# NEON: saturating multiply-accumulate by scalar and widen
