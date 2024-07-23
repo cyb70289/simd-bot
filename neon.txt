@@ -50,6 +50,14 @@ assistant:
 https://developer.arm.com/architectures/instruction-sets/intrinsics/
 </example>
 
+<example>
+user: what's the intrinsic to check if a int64 scalar is 0
+assistant:
+The intrinsic you are finding is `vcgtzd_s64`.
+[paste all content of group "NEON: compare scalar with 0"]
+https://developer.arm.com/architectures/instruction-sets/intrinsics/
+</example>
+
 
 <neon_document>
 NEON: add/sub
@@ -391,7 +399,7 @@ add per lane distance of two vectors and add to a wide vector
   -->  res[n] = a[n] + b[n] * c[n]
 
 
-NEON: absoluate value
+NEON: absolute value
 calcuate absolute value of each lane
 - intrin
   vabsq_s{8,16,32,64}
@@ -486,7 +494,7 @@ horizontal sum over all lanes
   --> res = a[0] + a[1] + a[2] + a[3]
 
 
-NEON: add across vector widen
+NEON: add across vector and widen
 horizontal sum over all lanes, widen result
 - intrin
   vaddlvq_{s,u}{8,16,32}
@@ -504,4 +512,82 @@ find maximum/minimum value of all lanes
 - example
   int32_t vmaxvq_s32(int32x4_t a) \
   -> res = max(a[0], a[1], a[2], a[3])
+
+
+NEON: compare
+compare two vectors by lane
+- intrin
+  vc{eq,ge,gt,le,lt}q_{s,u}{8,16,32,64}
+  vc{eq,ge,gt,le,lt}q_f{32,64}
+- example
+  uint32x4_t vceqq_s32(int32x4_t a, int32x4_t b)
+      +---------+---------+---------+---------+
+   a  |  123    |   55    |  678    |   573   |
+      +---------+---------+---------+---------+
+      +---------+---------+---------+---------+
+   b  |  123    |   66    |  789    |   573   |
+      +---------+---------+---------+---------+
+  ----------------------------------------------
+      +---------+---------+---------+---------+
+  res |ffffffff |00000000 |00000000 |ffffffff |
+      +---------+---------+---------+---------+
+
+
+NEON: compare with 0
+compare each lane of a vector with 0
+- intrin
+  vc{eq,ge,gt,le,lt}zq_s{8,16,32,64}
+  vceqzq_u{8,16,32,64}
+  vc{eq,ge,gt,le,lt}zq_f{32,64}
+- note
+  reference "NEON: compare vectors" to see how compare works
+- example
+  uint32x4_t vceqzq_s32(int32x4_t a) \
+  --> res[n] = 0xffffffff is a[n] == 0 else 0x00000000
+
+
+NEON: compare scalars
+compare two scalars and set bitmask in the result
+- intrin
+  vc{eq,ge,gt,le,lt}d_{s,u}64
+  vc{eq,ge,gt,le,lt}s_f32
+  vc{eq,ge,gt,le,lt}d_f64
+- example
+  uint32_t vceqs_f32(float32_t a, float32_t b) \
+  --> res = 0xffffffff is a == b else 0x00000000
+
+
+NEON: compare scalar with 0
+- intrin
+  vc{eq,ge,gt,le,lt}zd_s64
+  vceqzd_u64
+  vc{eq,ge,gt,le,lt}zs_f32
+  vc{eq,ge,gt,le,lt}zd_f64
+- example
+  uint32_t vceqzs_f32(float32_t a) \
+  --> res = 0xffffffff if a == 0 else 0x00000000
+
+
+NEON: compare absolute values
+- intrin
+  vca{ge,le,gt,lt}q_f{32,64}  (vector)
+  vca{ge,le,gt,lt}s_f32       (scalar)
+  vca{ge,le,gt,lt}d_f64       (scalar)
+- example
+  uint32x4_t vcaltq_f32(float32x4_t a, float32x4_t b) \
+  --> res[n] = 0xffffffff if |a| < |b| else 0x00000000
+  uint32_t vcages_f32(float32_t a, float32_t b) \
+  --> res = 0xffffffff if |a| >= |b| else 0x00000000
+
+
+NEON: bitwise not equal to 0
+and two vectors, fill non-zero lane with 1
+- intrin
+  vtstq_{s,u}{8,16,32,64} (vector)
+  vtstd_{s,u}64           (scalar)
+- example
+  uint32x4_t vtstq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = 0xffffffff if (a[n] & b[n]) else 0x00000000
+  uint64_t vtstd_s64(int64_t a, int64_t b) \
+  --> res = -1ULL if (a & b) else 0
 </neon_document>
