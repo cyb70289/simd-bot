@@ -225,7 +225,7 @@ multiply two vectors and add-to/subtract-from another
 
 NEON: multiply-accumulate and widen
 multiply two vectors, wide the result, and add-to/subtract-from another
-- name
+- intrin
   vmlal_{s,u}{8,16,32}      (add)
   vmlal_high_{s,u}{8,16,32} (add)
   vmlsl_{s,u}{8,16,32}      (sub)
@@ -241,7 +241,7 @@ multiply two vectors, wide the result, and add-to/subtract-from another
 
 NEON: fused multiply-accumulate
 multiply two fp vectors and add-to/subtract-from another
-- name
+- intrin
   vfmaq_f{32,64} (add)
   vfmsq_f{32,64} (sub)
 - example
@@ -252,7 +252,7 @@ multiply two fp vectors and add-to/subtract-from another
 NEON: fused multiply-accumulate by lane
 multiply vector with one lane of another vector, and \
 add-to/subtract-from a third vector
-- name
+- intrin
   vfmaq_laneq_f{32,64} (add)
   vfmsq_laneq_f{32,64} (sub)
 - example
@@ -264,7 +264,7 @@ add-to/subtract-from a third vector
 NEON: fused multiply-accumulate scalar by vector lane
 multiply a scalar with one lane of a vector, and \
 add-to/subtract-from another scalar
-- name
+- intrin
   vfmas_laneq_f32 (add)
   vfmad_landq_f64 (add)
   vfmss_laneq_f32 (sub)
@@ -274,7 +274,7 @@ add-to/subtract-from another scalar
 NEON: saturate multiply
 multiply two vectors, double and saturate the result, and \
 keep the most significant half
-- name
+- intrin
   vqdmulhq_s{16,32}  (truncated)
   vqrdmulhq_s{16,32} (rounded)
 - example
@@ -285,7 +285,7 @@ keep the most significant half
 NEON: saturate multiply and widen
 multiply two vectors, double and saturate the result, and \
 put to a wider vector
-- name
+- intrin
   vqdmull_s{16,32}
   vqdmull_high_s{16,32}
 - example
@@ -296,7 +296,7 @@ put to a wider vector
 
 
 NEON: saturating multiply scalars
-- name
+- intrin
   vqdmulhh_s16  (truncated)
   vqdmulhs_s32  (truncated)
   vqrdmulhh_s16 (rounded)
@@ -304,7 +304,7 @@ NEON: saturating multiply scalars
 
 
 NEON: widening multiply
-- name
+- intrin
   vmull_{s,u}{8,16,32}
   vmull_high_{s,u}{8,16,32}
 - note
@@ -323,14 +323,14 @@ NEON: widening multiply
 
 
 NEON: polynomial multiply
-- name
+- intrin
   vmulq_p8
   vmull_p8
   vmull_high_p8
 
 
 NEON: division
-- name
+- intrin
   vdivq_f{32,64}
 - example
   float32x4_t vdivq_f32(float32x4_t a, float32x4_t b) \
@@ -339,7 +339,7 @@ NEON: division
 
 NEON: absolute difference
 calcluate per lane distance of two vectors
-- name
+- intrin
   vabdq_{s,u}{8,16,32}
   vabdq_f{32,64}
 - note
@@ -351,14 +351,14 @@ calcluate per lane distance of two vectors
 
 NEON: absolute difference of scalars
 calcuate distance of two numbers
-- name
+- intrin
   vabds_f32
   vabdd_f64
 
 
 NEON: widening absolute difference
 cacluate per lane distance of two vectors, save to wide vector
-- name
+- intrin
   vabdl_{s,u}{8,16,32}
   vabdl_high_{s,u}{8,16,32}
 - note
@@ -372,7 +372,7 @@ cacluate per lane distance of two vectors, save to wide vector
 
 NEON: absolute difference and accumulate
 add per lane distance of two vectors to another vector
-- name
+- intrin
   vabaq_{s,u}{8,16,32}
 - example
   int32x4_t vabaq_s32(int32x4_t a, int32x4_t b, int32x4_t c) \
@@ -381,7 +381,7 @@ add per lane distance of two vectors to another vector
 
 NEON: widening absolute difference and accumulate
 add per lane distance of two vectors and add to a wide vector
-- name
+- intrin
   vabal_{s,u}{8,16,32}
   vabal_high_{s,u}{8,16,32}
 - note
@@ -393,7 +393,7 @@ add per lane distance of two vectors and add to a wide vector
 
 NEON: absoluate value
 calcuate absolute value of each lane
-- name
+- intrin
   vabsq_s{8,16,32,64}
   vabsq_f{32,64}
 - example
@@ -403,10 +403,105 @@ calcuate absolute value of each lane
 
 NEON: maximum/minimum
 get maximum/minimum of each lane from two vectors
-- name
+- intrin
   v{max,min}q_{s,u}{8,16,32,64}
   v{max,min}q_f{32,64}
 - example
   int32x4_t vmaxq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = max(a[n], b[n])
+
+
+# TODO
+# NEON: rounding
+# NEON: reciprocal
+# NEON: square root
+
+
+NEON: pairwise add
+- intrin
+  vpaddq_{s,u}{8,16,32,64}
+  vpaddq_f{32,64}
+- example
+  int32x4_t res = vpaddq_s32(int32x4_t a, int32x4_t b)
+      +---------+---------+---------+---------+
+   a  |   a3    |   a2    |   a1    |   a0    |
+      +---------+---------+---------+---------+
+      +---------+---------+---------+---------+
+   b  |   b3    |   b2    |   b1    |   b0    |
+      +---------+---------+---------+---------+
+  ----------------------------------------------
+      +---------+---------+---------+---------+
+  res |  b3+b2  |  b1+b0  |  a3+a2  |  a1+a0  |
+      +---------+---------+---------+---------+
+
+
+NEON: pairwise add and widen
+do pairwise addition, save result to wide vector
+- intrin
+  vpaddlq_{s,u}{8,16,32}
+- note
+  reference "NEON: pairwise add" to see how pairwise works
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vpaddlq_s32(int32x4_t a) \
+  --> res[0] = a[0] + a[1], \
+      res[1] = a[2] + a[3]
+
+
+NEON: pairwise add and widen accumulate
+do pairwise addition, widen the result, and add to a wide vector
+- intrin
+  vpadalq_{s,u}{8,16,32}
+- note
+  reference "NEON: pairwise add" to see how pairwise works
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vpadalq_s32(int64x2_t a, int32x4_t b) \
+  --> res[0] = a[0] + (b[0] + b[1]), \
+      res[1] = a[1] + (b[2] + b[3])
+
+
+NEON: pairwise maximum/minimum
+- intrin
+  vp{max,min}q_{s,u}{8,16,32}
+  vp{max,min}q_f{32,64}
+  vp{max,min}nmq_f{32,64}     (IEEE754)
+- note
+  reference "NEON: pairwise add" to see how pairwise works
+- example
+  int32x4_t vpmaxq_s32(int32x4_t a, int32x4_t b) \
+  --> res[0] = max(a[0], a[1]), \
+      res[1] = max(a[2], a[3]), \
+      res[2] = max(b[0], b[1]), \
+      res[3] = max(b[2], b[3])
+
+
+NEON: add across vector
+horizontal sum over all lanes
+- intrin
+  vaddvq_{s,u}{8,16,32,64}
+  vaddvq_f{32,64}
+- example
+  int32_t vaddvq_s32(int32x4_t a) \
+  --> res = a[0] + a[1] + a[2] + a[3]
+
+
+NEON: add across vector widen
+horizontal sum over all lanes, widen result
+- intrin
+  vaddlvq_{s,u}{8,16,32}
+- example
+  int64_t vaddlvq_s32(int32x4_t a) \
+  --> res = a[0] + a[1] + a[2] + a[3]
+
+
+NEON: maximum/minimum across vector
+find maximum/minimum value of all lanes
+- intrin
+  v{max,min}vq_{s,u}{8,16,32}
+  v{max,min}vq_f{32,64}
+  v{max,min}nmvq_f{32,64}     (IEEE754)
+- example
+  int32_t vmaxvq_s32(int32x4_t a) \
+  -> res = max(a[0], a[1], a[2], a[3])
 </neon_document>
