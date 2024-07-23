@@ -400,4 +400,13 @@ calcuate absolute value of each lane
   int32x2_t vabs_s32(int32x2_t a) \
   --> res[n] = |a[n]|
 
+
+NEON: maximum/minimum
+get maximum/minimum of each lane from two vectors
+- name
+  v{max,min}q_{s,u}{8,16,32,64}
+  v{max,min}q_f{32,64}
+- example
+  int32x4_t vmaxq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = max(a[n], b[n])
 </neon_document>
