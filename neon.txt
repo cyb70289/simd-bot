@@ -135,10 +135,11 @@ NEON: narrowing add/sub
 add/sub two vectors and narrow the result
 - intrin
   v{add,sub}hn_{s,u}{16,32,64}
+  v{add,sub}hn_high_{s,u}{16,32,64}
 - note
   only the most significant half of the result is kept
 - example
-  int32x2_t res = vaddhn_s64(int64x2_t a, int64x2_t b)
+  * int32x2_t res = vaddhn_s64(int64x2_t a, int64x2_t b)
       +---------+---------+
     a |    a1   |    a0   |
       +---------+---------+
@@ -146,13 +147,23 @@ add/sub two vectors and narrow the result
     b |    b1   |    b0   |
       +---------+---------+
   --------------------------
-                +----+----+
-   res          | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
-                +----+----+
-
-
-# TODO
-# NEON: vaddhn_high_xxx, vsubhn_high_xxx
+      +---------+----+----+
+   res|    0    | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
+      +---------+----+----+
+  * int32x4_t vaddhn_high_s64(int32x2_t r, int64x2_t a, int64x2_t b)
+      +---------+---------+
+    a |    a1   |    a0   |
+      +---------+---------+
+      +---------+---------+
+    b |    b1   |    b0   |
+      +---------+---------+
+      +---------+---------+
+    r |    r1   |    r0   |
+      +---------+---------+
+  --------------------------
+      +----+----+---------+
+   res| h  | l  |    r0   | h = hi32(a1+b1), l = hi32(a0+b0)
+      +----+----+---------+
 
 
 NEON: saturating add/sub
@@ -590,4 +601,173 @@ and two vectors, fill non-zero lane with 1
   --> res[n] = 0xffffffff if (a[n] & b[n]) else 0x00000000
   uint64_t vtstd_s64(int64_t a, int64_t b) \
   --> res = -1ULL if (a & b) else 0
+
+
+NEON: shift left
+left shift first vector by the least significant byte of the second vector
+- intrin
+  vshlq_{s,u}{8,16,32,64}
+- example
+  uint32x4_t vshlq_s32(uint32x4_t a, int32x4_t b) \
+  --> res[n] = a[n] << uint8(b[n])
+
+
+NEON: shift left/right by const
+- intrin
+  vsh{l,r}q_n_s{8,16,32,64}
+- example
+  int32x4_t vshlq_n_s32(int32x4_t a, const int c) \
+  --> res[n] = a[n] << c
+
+
+NEON: rounding shift left
+- intrin
+  vrshlq_{s,u}{8,16,32,64}  (vector)
+  vrsqld_{s,u}64            (scalar)
+
+
+NEON: saturating shift left
+saturate left shift first vector by least significant byte of second vector
+- intrin
+  vqshlq_{s,u}{8,16,32,64}  (vector)
+  vqshlb_{s,u}8             (scalar)
+  vqshlh_{s,u}16            (scalar)
+  vqshls_{s,u}32            (scalar)
+  vqshld_{s,u}64            (scalar)
+- example
+  int32x4_t vqshlq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = saturate(a[n] << uint8(b[n]))
+  uint32_t vqshls_u32(uint32_t a, int32_t b) \
+  --> res = saturate(a[n] << uint8(b))
+
+
+NEON: saturating shift left by const
+- intrin
+  vqshlq_n_{s,u}{8,16,32,64}  (vector)
+  vqshlb_n_{s,u}8             (scalar)
+  vqshlh_n_{s,u}16            (scalar)
+  vqshls_n_{s,u}32            (scalar)
+  vqshld_n_{s,u}64            (scalar)
+
+
+NEON: saturating rounding shift left
+- intrin
+  vqrshlq_{s,u}{8,16,32,64}  (vector)
+  vqrshlb_{s,u}8             (scalar)
+  vqrshlh_{s,u}16            (scalar)
+  vqrshls_{s,u}32            (scalar)
+  vqrshld_{s,u}64            (scalar)
+
+
+NEON: shift left by const and widen
+shift vector left by const and save to a wide vector
+- intrin
+  vshll_n_{s,u}{8,16,32}
+  vshll_high_n_{s,u}{8,16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vshll_n_s32(int32x2_t a, const int c) \
+  --> res[n] = a[n] << c
+  int64x2_t vshll_high_n_s32(int32x4_t a, const int c) \
+  --> res[n] = a[n+2] << c
+
+
+NEON: shift left by const and insert
+shift vector left by const and insert tail bits from another vector
+- intrin
+  vsliq_n_{s,u}{8,16,32,64}   (vector)
+  vslid_n_{s,u}64             (scalar)
+- example
+  int32x4_t vsliq_n_s32(int32x4_t a, int32x4_t b, const int c) \
+         +-------------------+
+   a[n]  |                   |
+         +-------------------+
+         +-------------------+
+   b[n]  |    bh        bl   |
+         +----------^--------^
+                    |        |
+                bit-c    bit-0
+ ------------------------------
+ res[n] = (a[n] << c) | bl
+
+
+NEON: rounding shift right by const
+- intrin
+  vrshrq_n_{s,u}{8,16,32,64}  (vector)
+  vrshrd_n_{s,u}64            (scalar)
+
+
+NEON: shift right by const and accumulate
+shift a vector right by const and add to another vector
+- intrin
+  vsraq_n_{s,u}{8,16,32,64}  (vector)
+  vsrad_n_{s,u}64            (scalar)
+- example
+  int32x4_t vsraq_n_s32(int32x4_t a, int32x4_t b, const int c) \
+  --> res[n] = a[n] + (b[n] << c)
+
+
+NEON: rounding shift right by const and accumulate
+- intrin
+  vrsraq_n_{s,u}{8,16,32,64}  (vector)
+  vrsrad_n_{s,u}64            (scalar)
+
+
+NEON: shift right by const and narrow
+- intrin
+  vshrn_n_{s,u}{16,32,64}
+  vshrn_high_n_{s,u}{16,32,64}
+- note
+  reference "NEON: narrowing add/sub" to see how narrow works
+  TBD: pick high half or low half?
+- example
+  int32x2_t vshrn_n_s64(int64x2_t a, const int c) \
+  --> res[n] = to32(a[n] << c)
+  int32x4_t vshrn_high_n_s64(int32x2_t r, int64x2_t a, const int c) \
+  --> res[0,1] = r[0,1]
+      res[2] = to32(a[0] << c)
+      res[3] = to32(a[1] << c)
+
+
+NEON: rounding shift right by const and narrow
+- intrin
+  vrshrn_n_{s,u}{16,32,64}
+  vrshrn_high_n_{s,u}{16,32,64}
+- note
+  reference "NEON: shift right by const and narrow" to see how narrow works
+
+
+NEON: saturating shift right by const and narrow
+- intrin
+  vqshrn_n_{s,u}{16,32,64}       (vector)
+  vqshrn_high_n_{s,u}{16,32,64}  (vector)
+  vqshrun_n_s{16,32,64}          (vector)
+  vqshrun_high_n_s{16,32,64}     (vector)
+  vqshrnh_n_{s,u}16              (scalar)
+  vqshrns_n_{s,u}32              (scalar)
+  vqshrnd_n_{s,u}64              (scalar)
+  vqshrunh_n_s16                 (scalar)
+  vqshruns_n_s32                 (scalar)
+  vqshrund_n_s64                 (scalar)
+- note
+  vqshrun...: converts signed to unsigned
+  reference "NEON: shift right by const and narrow" to see how narrow works
+
+
+NEON: saturating rounding shift right by const and narrow
+- intrin
+  vqrshrn_n_{s,u}{16,32,64}       (vector)
+  vqrshrn_high_n_{s,u}{16,32,64}  (vector)
+  vqrshrun_n_s{16,32,64}          (vector)
+  vqrshrun_high_n_s{16,32,64}     (vector)
+  vqrshrnh_n_{s,u}16              (scalar)
+  vqrshrns_n_{s,u}32              (scalar)
+  vqrshrnd_n_{s,u}64              (scalar)
+  vqrshrunh_n_s16                 (scalar)
+  vqrshruns_n_s32                 (scalar)
+  vqrshrund_n_s64                 (scalar)
+- note
+  vqrshrun...: converts signed to unsigned
+  reference "NEON: shift right by const and narrow" to see how narrow works
 </neon_document>
