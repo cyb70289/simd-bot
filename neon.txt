@@ -139,18 +139,8 @@ add/sub two vectors and narrow the result
 - note
   only the most significant half of the result is kept
 - example
-  * int32x2_t res = vaddhn_s64(int64x2_t a, int64x2_t b)
-      +---------+---------+
-    a |    a1   |    a0   |
-      +---------+---------+
-      +---------+---------+
-    b |    b1   |    b0   |
-      +---------+---------+
-  --------------------------
-      +---------+----+----+
-   res|    0    | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
-      +---------+----+----+
-  * int32x4_t vaddhn_high_s64(int32x2_t r, int64x2_t a, int64x2_t b)
+  int32x2_t res1 = vaddhn_s64(int64x2_t a, int64x2_t b)
+  int32x4_t res2 = vaddhn_high_s64(int32x2_t r, int64x2_t a, int64x2_t b)
       +---------+---------+
     a |    a1   |    a0   |
       +---------+---------+
@@ -161,8 +151,11 @@ add/sub two vectors and narrow the result
     r |    r1   |    r0   |
       +---------+---------+
   --------------------------
+                +----+----+
+  res1          | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
+                +----+----+
       +----+----+---------+
-   res| h  | l  |    r0   | h = hi32(a1+b1), l = hi32(a0+b0)
+  res2| h  | l  |    r0   | h = hi32(a1+b1), l = hi32(a0+b0)
       +----+----+---------+
 
 
@@ -742,11 +735,11 @@ NEON: saturating shift right by const and narrow
 - intrin
   vqshrn_n_{s,u}{16,32,64}       (vector)
   vqshrn_high_n_{s,u}{16,32,64}  (vector)
-  vqshrun_n_s{16,32,64}          (vector)
-  vqshrun_high_n_s{16,32,64}     (vector)
   vqshrnh_n_{s,u}16              (scalar)
   vqshrns_n_{s,u}32              (scalar)
   vqshrnd_n_{s,u}64              (scalar)
+  vqshrun_n_s{16,32,64}          (vector)
+  vqshrun_high_n_s{16,32,64}     (vector)
   vqshrunh_n_s16                 (scalar)
   vqshruns_n_s32                 (scalar)
   vqshrund_n_s64                 (scalar)
@@ -804,4 +797,55 @@ cast vector to another type
   vreinterpretq_<to>_<from>
 - example
   uint32x4_t vreinterpretq_u32_s64(int64x2_t a)
+
+
+NEON: narrow a vector
+move a vector to a narrow one
+- intrin
+  vmovn_{s,u}{16,32,64}
+  vmovn_high_{s,u}{16,32,64}
+- example
+  int32x2_t vmovn_s64(int64x2_t a)
+  int32x4_t vmovn_high_s64(int32x2_t r, int64x2_t a)
+      +---------+---------+
+    a | a1h a1l | a0h a0l |
+      +---------+---------+
+                +----+----+
+    r           | r1 | r0 |
+                +----+----+
+  --------------------------
+                +----+----+
+  res1          | a1l| a0l|
+                +----+----+
+      +----+----+----+----+
+  res2| a1l| a0l| r1 | r0 |
+      +----+----+---------+
+
+
+NEON: widen a vector
+move a vector to a wide one
+- intrin
+  vmovl_{s,u}{8,14,32}
+  vmovl_high_{s,u}{8,16,32}
+- example
+  int64x2_t vmovl_s32(int32x2_t a) \
+  --> res[n] = a[n]
+  int64x2_t vmovl_high_s32(int32x4_t a) \
+  --> res[n] = a[n+2]
+
+
+NEON: saturaring narrow
+- intrin
+  vqmovn_{s,u}{16,32,64}       (vector)
+  vqmovn_high_{s,u}{16,32,64}  (vector)
+  vqmovnh_{s,u}16              (scalar)
+  vqmovns_{s,u}32              (scalar)
+  vqmovnd_{s,u}64              (scalar)
+  vqmovun_s{16,32,64}          (vector)
+  vqmovun_high_s{16,32,64}     (vector)
+  vqmovunh_s16                 (scalar)
+  vqmovuns_s32                 (scalar)
+  vqmovund_s64                 (scalar)
+- note
+  vqmovun...: converts signed to unsigned
 </neon_document>
