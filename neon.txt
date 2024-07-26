@@ -770,4 +770,38 @@ NEON: saturating rounding shift right by const and narrow
 - note
   vqrshrun...: converts signed to unsigned
   reference "NEON: shift right by const and narrow" to see how narrow works
+
+
+NEON: convert float to integer
+- intrin
+  vcvt{,n,m,p,a}q_{s,u}32_f32  (vector)
+  vcvt{,n,m,p,a}q_{s,u}64_f64  (vector)
+  vcvt{,n,m,p,a}s_{s,u}32_f32  (scalar)
+  vcvt{,n,m,p,a}d_{s,u}64_f64  (scalar)
+- note
+  vcvtq_...:  round toward 0
+  vcvtn_...: round to nearest
+  vcvtm_...: round toward -inf
+  vcvtp_...: round toward +inf
+  vcvta_...: round to nearest with ties to away
+
+
+NEON: convert integer to float
+- intrin
+  vcvtq_f32_{s,u}32  (vector)
+  vcvtq_f64_{s,u}64  (vector)
+  vcvts_f32_{s,u}32  (scalar)
+  vcvts_f64_{s,u}64  (scalar)
+ 
+
+# TODO
+# vcvt{,n,m,p,a}q_n_xxx
+
+
+NEON: reinterpret cast
+cast vector to another type
+- intrin
+  vreinterpretq_<to>_<from>
+- example
+  uint32x4_t vreinterpretq_u32_s64(int64x2_t a)
 </neon_document>
