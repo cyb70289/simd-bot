@@ -53,7 +53,7 @@ https://developer.arm.com/architectures/instruction-sets/intrinsics/
 <example>
 user: what's the intrinsic to check if a int64 scalar is 0
 assistant:
-The intrinsic you are finding is `vcgtzd_s64`.
+The intrinsic you are finding is `vceqzd_s64`.
 [paste all content of group "NEON: compare scalar with 0"]
 https://developer.arm.com/architectures/instruction-sets/intrinsics/
 </example>
@@ -199,7 +199,7 @@ NEON: multiply
   vmulq_f{32,64}
   vmulxq_f{32,64}
 - note
-  vmulxq multiplies two fp vectors with extended precision
+  vmulxq multiplies two floating point vectors with extended precision
 - example
   int32x4_t vmulq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = a[n] * b[n]
@@ -224,12 +224,10 @@ multiply a scalar with a vector lane
 NEON: multiply-accumulate
 multiply two vectors and add-to/subtract-from another
 - intrin
-  vmlaq_{s,u}{8,16,32} (add)
-  vmlaq_f{32,64}       (add)
-  vmlsq_{s,u}{8,16,32} (sub)
-  vmlsq_f{32,64}       (sub)
+  vml{a,s}q_{s,u}{8,16,32}
+  vml{a,s}q_f{32,64}
 - note
-  for fp, use fused multiply-accumulate instead
+  for floating point, use fused multiply-accumulate instead
 - example:
   int32x4_t vmlaq_s32(int32x4_t a, int32x4_t b, int32x4_t c) \
   --> res[n] = a[n] + b[n] * c[n]
@@ -238,10 +236,8 @@ multiply two vectors and add-to/subtract-from another
 NEON: multiply-accumulate and widen
 multiply two vectors, wide the result, and add-to/subtract-from another
 - intrin
-  vmlal_{s,u}{8,16,32}      (add)
-  vmlal_high_{s,u}{8,16,32} (add)
-  vmlsl_{s,u}{8,16,32}      (sub)
-  vmlsl_high_{s,u}{8,16,32} (sub)
+  vml{a,s}l_{s,u}{8,16,32}
+  vml{a,s}l_high_{s,u}{8,16,32}
 - note
   reference "NEON: widening add/sub #1" to see how widen works
 - example
@@ -252,10 +248,9 @@ multiply two vectors, wide the result, and add-to/subtract-from another
 
 
 NEON: fused multiply-accumulate
-multiply two fp vectors and add-to/subtract-from another
+multiply two floating point vectors and add-to/subtract-from another
 - intrin
-  vfmaq_f{32,64} (add)
-  vfmsq_f{32,64} (sub)
+  vfm{a,s}q_f{32,64}
 - example
   float32x4_t vfmaq_f32(float32x4_t a, float32x4_t b, float32x4_t c) \
   --> res[n] = a[n] + b[n] * c[n]
@@ -265,8 +260,7 @@ NEON: fused multiply-accumulate by lane
 multiply vector with one lane of another vector, and \
 add-to/subtract-from a third vector
 - intrin
-  vfmaq_laneq_f{32,64} (add)
-  vfmsq_laneq_f{32,64} (sub)
+  vfm{a,s}q_laneq_f{32,64}
 - example
   float32x4_t vfmaq_laneq_f32(float32x4_t a, float32x4_t b, \
                               float32x4_t v, const int lane) \ 
@@ -277,10 +271,8 @@ NEON: fused multiply-accumulate scalar by vector lane
 multiply a scalar with one lane of a vector, and \
 add-to/subtract-from another scalar
 - intrin
-  vfmas_laneq_f32 (add)
-  vfmad_landq_f64 (add)
-  vfmss_laneq_f32 (sub)
-  vfmsd_landq_f64 (sub)
+  vfm{a,s}s_laneq_f32
+  vfm{a,s}d_landq_f64
 
 
 NEON: saturate multiply
