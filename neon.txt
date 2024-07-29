@@ -444,13 +444,7 @@ multiply a vector by a scalar, widen the result
 # NEON: saturating multiply-accumulate
 # NEON: saturating multiply by scalar and widen
 # NEON: saturating multiply-accumulate by scalar and widen
-
-
-NEON: polynomial multiply
-- intrin
-  vmulq_p8
-  vmull_p8
-  vmull_high_p8
+# NEON: polynomial multiply
 
 
 NEON: division
@@ -641,6 +635,7 @@ compare two vectors by lane
   vc{eq,ge,gt,le,lt}q_f{32,64}
 - note
   return per lane bitmask, all 1 if compare success, otherwise all 0
+  TODO: polynomial
 - example
   uint32x4_t vceqq_s32(int32x4_t a, int32x4_t b)
       +---------+---------+---------+---------+
@@ -663,6 +658,7 @@ compare each lane of a vector with 0
   vc{eq,ge,gt,le,lt}zq_f{32,64}
 - note
   reference "NEON: compare vectors" to see how compare works
+  TODO: polynomial
 - example
   uint32x4_t vceqzq_s32(int32x4_t a) \
   --> res[n] = 0xffffffff is a[n] == 0 else 0x00000000
@@ -711,6 +707,8 @@ and two vectors bitwise, fill non-zero lane with 1
 - intrin
   vtstq_{s,u}{8,16,32,64} (vector)
   vtstd_{s,u}64           (scalar)
+- note
+  TODO: polynomial
 - example
   uint32x4_t vtstq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = 0xffffffff if (a[n] & b[n]) else 0x00000000
@@ -789,10 +787,12 @@ shift vector left by const and save to a wider vector
 
 
 NEON: shift left by const and insert
-shift vector left by const and insert tail bits from another vector
+shift vector left by const and insert lower bits from another vector
 - intrin
   vsliq_n_{s,u}{8,16,32,64}   (vector)
   vslid_n_{s,u}64             (scalar)
+- note
+  TODO: polynomial
 - example
   int32x4_t vsliq_n_s32(int32x4_t a, int32x4_t b, const int c) \
          +-------------------+
@@ -801,10 +801,9 @@ shift vector left by const and insert tail bits from another vector
          +-------------------+
    b[n]  |    bh        bl   |
          +----------^--------^
-                    |        |
-                bit-c    bit-0
+                    | c bits |
  ------------------------------
- res[n] = (a[n] << c) | bl
+  res[n] = (a[n] << c) | bl
 
 
 NEON: rounding shift right by const
@@ -887,6 +886,26 @@ NEON: saturating rounding shift right by const and narrow
   reference "NEON: shift right by const and narrow" to see how narrow works
 
 
+NEON: shift right by const and insert
+shift vector right by const and insert higher bits from another vector
+- intrin
+  vsriq_n_{s,u}{8,16,32,64}   (vector)
+  vsrid_n_{s,u}64             (scalar)
+- note
+  TODO: polynomial
+- example
+  int32x4_t vsriq_n_s32(int32x4_t a, int32x4_t b, const int c) \
+         +-------------------+
+   a[n]  |                   |
+         +-------------------+
+         +-------------------+
+   b[n]  |    bh        bl   |
+         ^----------^--------+
+         |  c bits  |
+ ------------------------------
+  res[n] = (a[n] >> c) | bh
+
+
 NEON: convert float to integer
 - intrin
   vcvt{,n,m,p,a}q_{s,u}32_f32  (vector)
@@ -923,6 +942,8 @@ NEON: reinterpret cast
 cast vector to another type
 - intrin
   vreinterpretq_<to>_<from>
+- note
+  TODO: polynomial
 - example
   uint32x4_t vreinterpretq_u32_s64(int64x2_t a)
 
@@ -978,4 +999,46 @@ NEON: saturaring narrow
   vqmovund_s64                 (scalar)
 - note
   vqmovun...: converts signed to unsigned
+
+
+NEON: negate
+- intrin
+  vnegq_s{8,16,32,64}
+  vnegq_f{32,64}
+- example
+  int32x4_t vnegq_s32(int32x4_t a) \
+  --> res[n] = -a[n]
+
+
+NEON: saturating negate
+- intrin
+  vqnegq_s{8,16,32,64}  (vector)
+  vqnegqb_s8            (scalar)
+  vqnegqh_s16           (scalar)
+  vqnegqs_s32           (scalar)
+  vqnegqd_s64           (scalar)
+- example
+  int32x4_t vqnegq_s32(int32x4_t a) \
+  --> res[n] = saturate(-a[n])
+  int32_t vqnegs_s32(int32_t a) \
+  --> res = saturate(-n)
+
+
+NEON: bitwise not
+revert each bit of a vector
+- intrin
+  vmvnq_{s,u}{8,16,32,64}
+- note
+  TODO: polynomial
+- example
+  int32x4_t vmvnq_s32(int32x4_t a) \
+  --> res[n] = ~a[n]
+
+
+NEON: bitwise and/or/exclusive-or/or-not
+- intrin
+  v{and,orr,eor,orn}q_{s,u}{8,16,32,64}
+- example
+  int32x4_t vornq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = a[n] | (~b[n])
 </neon_document>
