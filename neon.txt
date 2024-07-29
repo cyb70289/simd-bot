@@ -194,24 +194,43 @@ NEON: saturating add/sub scalars
 
 
 NEON: multiply
+multiply two vectors
 - intrin
   vmulq_{s,u}{8,16,32}
   vmulq_f{32,64}
   vmulxq_f{32,64}
 - note
-  vmulxq multiplies two floating point vectors with extended precision
+  vmulxq_f.. multiplies two floating point vectors with extended precision
 - example
   int32x4_t vmulq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = a[n] * b[n]
 
 
 NEON: multiply by lane
-multiply a vector with one lane of another vector
+multiply a vector or scalar with one lane of another vector
 - intrin
-  vmulxq_laneq_f{32,64}
+  vmulq_laneq_{s,u}{16,32}  (vector)
+  vmulq_laneq_f{32,64}      (vector)
+  vmulxq_laneq_f{32,64}     (vector)
+  vmuls_laneq_f32           (scalar)
+  vmuld_laneq_f64           (scalar)
+- note
+  vmulxq_laneq_f.. multiplies two floating point vectors with extended precision
 - example
-  float32x4_t vmulxq_laneq_f32(float32x4_t a, float32x4_t v, const int lane) \
+  float32x4_t vmulq_laneq_f32(float32x4_t a, float32x4_t v, const int lane) \
   --> res[n] = a[n] * v[lane]
+  float32_t vmuls_laneq_f32(float32_t a, float32x4_t v, const int lane) \
+  --> res = a * v[lane]
+
+
+NEON: multiply by scalar
+multiply a vector by a scalar
+- intrin
+  vmulq_n_{s,u}{16,32}
+  vmulq_n_f{32,64}
+- example
+  int32x4_t vmulq_n_s32(int32x4_t a, int32_t b) \
+  --> res[n] = a[n] * b
 
 
 NEON: multiply scalar by lane
@@ -219,18 +238,35 @@ multiply a scalar with a vector lane
 - intrin
   vmulxs_laneq_f32
   vmulxd_laneq_f64
+- example
+  float32_t vmulxs_laneq_f32(float32_t a, float32x4_t v, const int lane) \
+  --> res = a * v[lane]
 
 
 NEON: multiply-accumulate
-multiply two vectors and add-to/subtract-from another
+multiply two integer vectors and add-to/subtract-from another
 - intrin
   vml{a,s}q_{s,u}{8,16,32}
-  vml{a,s}q_f{32,64}
-- note
-  for floating point, use fused multiply-accumulate instead
 - example:
   int32x4_t vmlaq_s32(int32x4_t a, int32x4_t b, int32x4_t c) \
   --> res[n] = a[n] + b[n] * c[n]
+
+
+NEON: multiply-accumulate by lane
+multiply integer vector with one lane of another vector, and \
+add-to/subtract-from a third vector
+- intrin
+  vml{a,s}q_laneq_{s,u}{16,32}
+
+
+NEON: multiply-acculmulate by scalar
+multiply vector with scalar, add-to/subtract-from another vector
+- intrin
+  vml{a,s}q_n_{s,u}{16,32}
+  vml{a,s}q_n_f32
+- example
+  int32x4_t vmlaq_n_s32(int32x4_t a, int32x4_t b, int32_t c) \
+  --> res[n] = a[n] + b[n] * c
 
 
 NEON: multiply-accumulate and widen
@@ -245,6 +281,38 @@ multiply two vectors, wide the result, and add-to/subtract-from another
   --> res[n] = a[n] + b[n] * c[n]
   int64x2_t vmlal_high_s32(int64x2_t a, int32x4_t b, int32x4_t c) \
   --> res[n] = a[n] + b[n+2] * c[n+2]
+
+
+NEON: multiply-accumulate by lane and widen
+multipy a vector with one lane of another vector, widen the result, \
+and add-to/subtract from a third vector
+- intrin
+  vml{a,s}l_laneq_{s,u}{16,32}
+  vml{a,s}l_high_laneq_{s,u}{16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vmlal_laneq_s32(int64x2_t a, int32x2_t b, int32x4_t v, \
+                            const int lane) \
+  --> res[n] = a[n] + b[n] * v[lane]
+  int64x2_t vmlal_high_laneq_s32(int64x2_t a, int32x4_t b, int32x4_t v, \
+                                 const int lane) \
+  --> res[n] = a[n] + b[n+2] * v[lane]
+
+
+NEON: multiply-accumulate by scalar and widen
+multipy a vector with a scalar, widen the result, \
+and add-to/subtract from a third vector
+- intrin
+  vml{a,s}l_n_{s,u}{16,32}
+  vml{a,s}l_high_n_{s,u}{16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vmlsl_n_s32(int64x2_t a, int32x2_t b, int32_t c) \
+  --> res[n] = a[n] + b[n] * c
+  int64x2_t vmlsl_high_n_s32(int64x2_t a, int32x4_t b, int32_t c) \
+  --> res[n] = a[n] + b[n+2] * c
 
 
 NEON: fused multiply-accumulate
@@ -267,7 +335,16 @@ add-to/subtract-from a third vector
   --> res[n] = a[n] + b[n] * v[lane]
 
 
-NEON: fused multiply-accumulate scalar by vector lane
+NEON: fused multiply-accumulate by scalar
+multiply a vector with a scalar, and add-to/subtract-from another vector
+- intrin
+  vmf{a,s}q_n_f{32,64}
+- example
+  float32x4_t vfmsq_n_f32(float32x4_t a, float32x4_t b, float32_t c) \
+  --> res]n] = a]n] - b[n] * c
+
+
+NEON: fused multiply-accumulate scalar by lane
 multiply a scalar with one lane of a vector, and \
 add-to/subtract-from another scalar
 - intrin
@@ -308,6 +385,7 @@ NEON: saturating multiply scalars
 
 
 NEON: widening multiply
+multiply two vectors, save result to a wide vector
 - intrin
   vmull_{s,u}{8,16,32}
   vmull_high_{s,u}{8,16,32}
@@ -318,6 +396,34 @@ NEON: widening multiply
   --> res[n] = a[n] * b[n]
   int64x2_t vmull_high_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = a[n+2] * b[n+2]
+
+
+NEON: widening multiply by lane
+multiply a vector with one lane of another vector, widen the result
+- intrin
+  vmull_laneq_{s,u}{16,32}
+  vmull_high_laneq_{s,u}{16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vmull_lane_s32(int32x2_t a, int32x2_t v, const int lane) \
+  --> res[n] = a[n] * v[lane]
+  int64x2_t vmull_high_laneq_s32(int32x4_t a, int32x4_t v, const int lane) \
+  --> res[n] = a[n+2] * v[lane]
+
+
+NEON: widening multiply by scalar
+multiply vector by scalar, widen the result
+- intrin
+  vmull_n_{s,u}{16,32}
+  vmull_high_n_{s,u}{16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
+- example
+  int64x2_t vmull_n_s32(int32x2_t a, int32_t b) \
+  --> res[n] = a[n] * b
+  int64x2_t vmull_high_n_s32(int32x4_t a, int32_t b) \
+  --> res]n] = a[n+2] * b
 
 
 # TODO
