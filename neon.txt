@@ -1,11 +1,11 @@
-You are Arm Neon chatbot answering Neon intrinsics related questions.
+You are Arm NEON chatbot answering NEON intrinsics related questions.
 
-I've prepared a Neon document for your reference, as attached below.
+I've prepared a NEON document for your reference, as attached below.
 Use your existing knowledge to understand this document.
 Please note your answer should be strictly limited to this document.
 Be concise, do not add your own examples or explanation.
 
-This Neon doc lists Arm64 NEON-128 intrinsics, without 64-bit ones.
+This NEON doc lists Arm64 NEON-128 intrinsics, without 64-bit ones.
 
 Intrinsics are grouped by functionalities. Each group strats with a line of
 format "NEON: function", followed by an optional description, and some fields:
@@ -75,8 +75,6 @@ add two vectors and widen the result
 - intrin
   v{add,sub}l_{s,u}{8,16,32}
   v{add,sub}l_high_{s,u}{8,16,32}
-  v{add,sub}l_{s,u}{8,16,32}
-  v{add,sub}l_high_{s,u}{8,16,32}
 - example
   int64x2_t res1 = vaddl_s32(int32x2_t a, int32x2_t b)
   int64x2_t res2 = vaddl_high_s32(int32x4_t a, int32x4_t b)
@@ -96,10 +94,8 @@ add two vectors and widen the result
 
 
 NEON: widening add/sub #2
-add/sub a vector to/from a wide vector
+add/sub a vector to/from a wider vector
 - intrin
-  v{add,sub}w_{s,u}{8,16,32}
-  v{add,sub}w_high_{s,u}{8,16,32}
   v{add,sub}w_{s,u}{8,16,32}
   v{add,sub}w_high_{s,u}{8,16,32}
 - example
@@ -116,7 +112,7 @@ add/sub a vector to/from a wide vector
  res1 | a1 + b1 | a0 + b0 |
       +---------+---------+
       +---------+---------+
- res2 | a1 + b3 | a1 + b2 |
+ res2 | a1 + b3 | a0 + b2 |
       +---------+---------+
 
 
@@ -125,7 +121,7 @@ add/sub two vectors and halving the result
 - intrin
   vh{add,sub}q_{s,u}{8,16,32}
 - note
-  the summation is shifted right by 1 bit, not divide by 2
+  the result is shifted right by 1 bit, not divide by 2
 - example
   int32x4_t vhaddq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = (a[n] + b[n]) >> 1
@@ -147,19 +143,20 @@ add/sub two vectors and narrow the result
       +---------+---------+
     b |    b1   |    b0   |
       +---------+---------+
-      +---------+---------+
-    r |    r1   |    r0   |
-      +---------+---------+
+                +----+----+
+    r           | r1 | r0 |
+                +----+----+
   --------------------------
                 +----+----+
   res1          | h  | l  | h = hi32(a1+b1), l = hi32(a0+b0)
                 +----+----+
-      +----+----+---------+
-  res2| h  | l  |    r0   | h = hi32(a1+b1), l = hi32(a0+b0)
-      +----+----+---------+
+      +----+----+----+----+
+  res2| h  | l  | r1 | r0 | h = hi32(a1+b1), l = hi32(a0+b0)
+      +----+----+----+----+
 
 
 NEON: saturating add/sub
+add/sub two vectors and saturate the result
 - intrin
   vq{add,sub}q_{s,u}{8,16,32,64}
   vuq{add,sub}q_s{8,16,32,64}
@@ -174,6 +171,7 @@ NEON: saturating add/sub
 
 
 NEON: saturating add/sub scalars
+add/sub two scalars and saturate the result
 - intrin
   vq{add,sub}b_{s,u}8
   vq{add,sub}h_{s,u}16
@@ -191,6 +189,9 @@ NEON: saturating add/sub scalars
   vq...:  both operand are of same type
   vuq...: sint +/- uint -> sint
   vsq...: uint +/- sint -> uint
+- example
+  int32_t vqsubs_s32(int32_t a, int32_t b) \
+  --> res = saturate(a - b)
 
 
 NEON: multiply
@@ -207,7 +208,7 @@ multiply two vectors
 
 
 NEON: multiply by lane
-multiply a vector or scalar with one lane of another vector
+multiply a vector or scalar by a lane of another vector
 - intrin
   vmulq_laneq_{s,u}{16,32}  (vector)
   vmulq_laneq_f{32,64}      (vector)
@@ -234,7 +235,7 @@ multiply a vector by a scalar
 
 
 NEON: multiply scalar by lane
-multiply a scalar with a vector lane
+multiply a scalar by a vector lane
 - intrin
   vmulxs_laneq_f32
   vmulxd_laneq_f64
@@ -257,6 +258,10 @@ multiply integer vector with one lane of another vector, and \
 add-to/subtract-from a third vector
 - intrin
   vml{a,s}q_laneq_{s,u}{16,32}
+- example
+  int32x4_t vmlaq_laneq_s32(int32x4_t a, int32x4_t b, int32x4_t v, \
+                            const int lane) \
+  --> res[n] = a[n] + b[n] * v[lane]
 
 
 NEON: multiply-acculmulate by scalar
@@ -265,8 +270,8 @@ multiply vector with scalar, add-to/subtract-from another vector
   vml{a,s}q_n_{s,u}{16,32}
   vml{a,s}q_n_f32
 - example
-  int32x4_t vmlaq_n_s32(int32x4_t a, int32x4_t b, int32_t c) \
-  --> res[n] = a[n] + b[n] * c
+  int32x4_t vmlsq_n_s32(int32x4_t a, int32x4_t b, int32_t c) \
+  --> res[n] = a[n] - b[n] * c
 
 
 NEON: multiply-accumulate and widen
@@ -284,7 +289,7 @@ multiply two vectors, wide the result, and add-to/subtract-from another
 
 
 NEON: multiply-accumulate by lane and widen
-multipy a vector with one lane of another vector, widen the result, \
+multipy a vector with a lane of another vector, widen the result, \
 and add-to/subtract from a third vector
 - intrin
   vml{a,s}l_laneq_{s,u}{16,32}
@@ -302,7 +307,7 @@ and add-to/subtract from a third vector
 
 NEON: multiply-accumulate by scalar and widen
 multipy a vector with a scalar, widen the result, \
-and add-to/subtract from a third vector
+and add-to/subtract-from a third vector
 - intrin
   vml{a,s}l_n_{s,u}{16,32}
   vml{a,s}l_high_n_{s,u}{16,32}
@@ -310,9 +315,9 @@ and add-to/subtract from a third vector
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vmlsl_n_s32(int64x2_t a, int32x2_t b, int32_t c) \
-  --> res[n] = a[n] + b[n] * c
+  --> res[n] = a[n] - b[n] * c
   int64x2_t vmlsl_high_n_s32(int64x2_t a, int32x4_t b, int32_t c) \
-  --> res[n] = a[n] + b[n+2] * c
+  --> res[n] = a[n] - b[n+2] * c
 
 
 NEON: fused multiply-accumulate
@@ -325,7 +330,7 @@ multiply two floating point vectors and add-to/subtract-from another
 
 
 NEON: fused multiply-accumulate by lane
-multiply vector with one lane of another vector, and \
+multiply vector with a lane of another vector, and \
 add-to/subtract-from a third vector
 - intrin
   vfm{a,s}q_laneq_f{32,64}
@@ -335,25 +340,29 @@ add-to/subtract-from a third vector
   --> res[n] = a[n] + b[n] * v[lane]
 
 
-NEON: fused multiply-accumulate by scalar
-multiply a vector with a scalar, and add-to/subtract-from another vector
-- intrin
-  vmf{a,s}q_n_f{32,64}
-- example
-  float32x4_t vfmsq_n_f32(float32x4_t a, float32x4_t b, float32_t c) \
-  --> res]n] = a]n] - b[n] * c
-
-
 NEON: fused multiply-accumulate scalar by lane
 multiply a scalar with one lane of a vector, and \
 add-to/subtract-from another scalar
 - intrin
   vfm{a,s}s_laneq_f32
   vfm{a,s}d_landq_f64
+- example
+  float32_t vfmas_laneq_f32(float32_t a, float32_t b, float32x4_t v, \
+                            const int lane) \
+  --> res = a + b * v[lane]
 
 
-NEON: saturate multiply
-multiply two vectors, double and saturate the result, and \
+NEON: fused multiply-accumulate by scalar
+multiply a vector with a scalar, and add-to/subtract-from another vector
+- intrin
+  vfm{a,s}q_n_f{32,64}
+- example
+  float32x4_t vfmsq_n_f32(float32x4_t a, float32x4_t b, float32_t c) \
+  --> res]n] = a]n] - b[n] * c
+
+
+NEON: saturating multiply
+multiply two vectors, double and saturate the result, then \
 keep the most significant half
 - intrin
   vqdmulhq_s{16,32}  (truncated)
@@ -363,12 +372,14 @@ keep the most significant half
   --> res[n] = high32(saturate(2 * a[n] * b[n]))
 
 
-NEON: saturate multiply and widen
-multiply two vectors, double and saturate the result, and \
-put to a wider vector
+NEON: saturating multiply and widen
+multiply two vectors, double and saturate the result, then \
+save to a wider vector
 - intrin
   vqdmull_s{16,32}
   vqdmull_high_s{16,32}
+- note
+  reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vqdmull_s32(int32x2_t a, int32x2_t b) \
   --> res[n] = saturate(2 * a[n] * b[n])
@@ -382,10 +393,13 @@ NEON: saturating multiply scalars
   vqdmulhs_s32  (truncated)
   vqrdmulhh_s16 (rounded)
   vqrdmulhs_s32 (rounded)
+- example
+  int32_t vqdmulhs_s32(int32_t a, int32_t b) \
+  --> res = saturate(2 * a * b)
 
 
 NEON: widening multiply
-multiply two vectors, save result to a wide vector
+multiply two vectors, save result to a wider vector
 - intrin
   vmull_{s,u}{8,16,32}
   vmull_high_{s,u}{8,16,32}
@@ -399,7 +413,7 @@ multiply two vectors, save result to a wide vector
 
 
 NEON: widening multiply by lane
-multiply a vector with one lane of another vector, widen the result
+multiply a vector by a lane of another vector, widen the result
 - intrin
   vmull_laneq_{s,u}{16,32}
   vmull_high_laneq_{s,u}{16,32}
@@ -413,7 +427,7 @@ multiply a vector with one lane of another vector, widen the result
 
 
 NEON: widening multiply by scalar
-multiply vector by scalar, widen the result
+multiply a vector by a scalar, widen the result
 - intrin
   vmull_n_{s,u}{16,32}
   vmull_high_n_{s,u}{16,32}
@@ -453,10 +467,11 @@ calcluate per lane distance of two vectors
   vabdq_{s,u}{8,16,32}
   vabdq_f{32,64}
 - note
-  result is same type as argument, may surprise signed inputs
+  result is of same type as argument, may surprise signed inputs
   eg. distance of int8 number 127 and -128 is 255, but abd(127, -128) = -1
 - example
-  int32x4_t vabdq_s32(int32x4_t a, int32x4_t b) -> res[n] = |a[n] - b[n]|
+  int32x4_t vabdq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = |a[n] - b[n]|
 
 
 NEON: absolute difference of scalars
@@ -464,10 +479,12 @@ calcuate distance of two numbers
 - intrin
   vabds_f32
   vabdd_f64
+- note
+  just use "fabs(a - b)"
 
 
 NEON: widening absolute difference
-cacluate per lane distance of two vectors, save to wide vector
+cacluate per lane distance of two vectors, save to a wider vector
 - intrin
   vabdl_{s,u}{8,16,32}
   vabdl_high_{s,u}{8,16,32}
@@ -507,7 +524,7 @@ calcuate absolute value of each lane
   vabsq_s{8,16,32,64}
   vabsq_f{32,64}
 - example
-  int32x2_t vabs_s32(int32x2_t a) \
+  int32x4_t vabsq_s32(int32x4_t a) \
   --> res[n] = |a[n]|
 
 
@@ -528,6 +545,7 @@ get maximum/minimum of each lane from two vectors
 
 
 NEON: pairwise add
+add every two adjacent lanes
 - intrin
   vpaddq_{s,u}{8,16,32,64}
   vpaddq_f{32,64}
@@ -546,7 +564,7 @@ NEON: pairwise add
 
 
 NEON: pairwise add and widen
-do pairwise addition, save result to wide vector
+do pairwise addition, save result to a wider vector
 - intrin
   vpaddlq_{s,u}{8,16,32}
 - note
@@ -559,7 +577,7 @@ do pairwise addition, save result to wide vector
 
 
 NEON: pairwise add and widen accumulate
-do pairwise addition, widen the result, and add to a wide vector
+do pairwise addition, widen the result, and add to a wider vector
 - intrin
   vpadalq_{s,u}{8,16,32}
 - note
@@ -621,6 +639,8 @@ compare two vectors by lane
 - intrin
   vc{eq,ge,gt,le,lt}q_{s,u}{8,16,32,64}
   vc{eq,ge,gt,le,lt}q_f{32,64}
+- note
+  return per lane bitmask, all 1 if compare success, otherwise all 0
 - example
   uint32x4_t vceqq_s32(int32x4_t a, int32x4_t b)
       +---------+---------+---------+---------+
@@ -654,6 +674,8 @@ compare two scalars and set bitmask in the result
   vc{eq,ge,gt,le,lt}d_{s,u}64
   vc{eq,ge,gt,le,lt}s_f32
   vc{eq,ge,gt,le,lt}d_f64
+- note
+  just use "-(a == b)"
 - example
   uint32_t vceqs_f32(float32_t a, float32_t b) \
   --> res = 0xffffffff is a == b else 0x00000000
@@ -665,6 +687,8 @@ NEON: compare scalar with 0
   vceqzd_u64
   vc{eq,ge,gt,le,lt}zs_f32
   vc{eq,ge,gt,le,lt}zd_f64
+- note
+  just use "-(a == 0)"
 - example
   uint32_t vceqzs_f32(float32_t a) \
   --> res = 0xffffffff if a == 0 else 0x00000000
@@ -683,7 +707,7 @@ NEON: compare absolute values
 
 
 NEON: bitwise not equal to 0
-and two vectors, fill non-zero lane with 1
+and two vectors bitwise, fill non-zero lane with 1
 - intrin
   vtstq_{s,u}{8,16,32,64} (vector)
   vtstd_{s,u}64           (scalar)
@@ -718,7 +742,7 @@ NEON: rounding shift left
 
 
 NEON: saturating shift left
-saturate left shift first vector by least significant byte of second vector
+saturate left a vector by least significant bytes of another vector
 - intrin
   vqshlq_{s,u}{8,16,32,64}  (vector)
   vqshlb_{s,u}8             (scalar)
@@ -751,7 +775,7 @@ NEON: saturating rounding shift left
 
 
 NEON: shift left by const and widen
-shift vector left by const and save to a wide vector
+shift vector left by const and save to a wider vector
 - intrin
   vshll_n_{s,u}{8,16,32}
   vshll_high_n_{s,u}{8,16,32}
@@ -870,11 +894,14 @@ NEON: convert float to integer
   vcvt{,n,m,p,a}s_{s,u}32_f32  (scalar)
   vcvt{,n,m,p,a}d_{s,u}64_f64  (scalar)
 - note
-  vcvtq_...:  round toward 0
-  vcvtn_...: round to nearest
-  vcvtm_...: round toward -inf
-  vcvtp_...: round toward +inf
-  vcvta_...: round to nearest with ties to away
+  vcvtq_....: round toward 0
+  vcvtnq_...: round to nearest
+  vcvtmq_...: round toward -inf
+  vcvtpq_...: round toward +inf
+  vcvtaq_...: round to nearest with ties to away
+- example
+  int32x4_t vcvtq_s32_f32(float32x4_t a) \
+  --> res[n] = int32(a[n])
 
 
 NEON: convert integer to float
@@ -883,6 +910,9 @@ NEON: convert integer to float
   vcvtq_f64_{s,u}64  (vector)
   vcvts_f32_{s,u}32  (scalar)
   vcvts_f64_{s,u}64  (scalar)
+- example
+  float32x4_t vcvtq_f32_s32(int32x4_t a) \
+  --> res[n] = float(a[n])
  
 
 # TODO
@@ -898,10 +928,12 @@ cast vector to another type
 
 
 NEON: narrow a vector
-move a vector to a narrow one
+move a vector to a narrower one
 - intrin
   vmovn_{s,u}{16,32,64}
   vmovn_high_{s,u}{16,32,64}
+- note
+  keep lower half of each lane
 - example
   int32x2_t vmovn_s64(int64x2_t a)
   int32x4_t vmovn_high_s64(int32x2_t r, int64x2_t a)
@@ -921,9 +953,9 @@ move a vector to a narrow one
 
 
 NEON: widen a vector
-move a vector to a wide one
+move a vector to a wider one
 - intrin
-  vmovl_{s,u}{8,14,32}
+  vmovl_{s,u}{8,16,32}
   vmovl_high_{s,u}{8,16,32}
 - example
   int64x2_t vmovl_s32(int32x2_t a) \
