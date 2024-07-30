@@ -1041,4 +1041,47 @@ NEON: bitwise and/or/exclusive-or/or-not
 - example
   int32x4_t vornq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = a[n] | (~b[n])
+
+
+NEON: count leading redundant sign bits
+count number of bits following the most significant bit \
+that are identical to it
+- intrin
+  vclsq_{s,u}{8,16,32}
+
+
+NEON: count leading zeros
+- intrin
+  vclzq_{s,u}{8,16,32}
+
+
+NEON: population count
+count ones, ie. popcount
+- intrin
+  vcntq_{s,u}8
+
+
+NEON: bitwise clear
+clear bits in first vector that is set in second vector, \
+effectively an and-not operation
+- intrin
+  vbicq_{s,u}{8,16,32,64}
+- example
+  int32x4_t vbicq_s32(int32x4_t a, int32x4_t b) \
+  --> res[n] = a[n] & (~b[n])
+
+
+NEON: bitwise select
+select from two vectors
+- intrin
+  vbslq_{s,u}{8,16,32,64}
+  vbslq_f{32,64}
+- note
+  common use case is to select full lanes from two vectors by a mask vector
+  TODO: polynomial
+- example
+  int32x4_t vbslq_s32(uint32x4_t mask, int32x4_t a, int32x4_t b) \
+  --> if (mask[n] == 0xffffffff) res[n] = a[n]; \
+      else if (mask[n] == 0x00000000) res[n] = b[n]; \
+      else res[n] = select_bits_from_an_bn_per_maskn
 </neon_document>
