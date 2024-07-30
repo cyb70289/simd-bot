@@ -14,11 +14,12 @@ format "NEON: function", followed by an optional description, and some fields:
 - example: sample code or ascii art to explain the details, optional
 
 Intrinsics naming follows shell glob syntax.
-Ex. NEON vector multiply intrisics are named as below:
-"vmulq_{s,u}{8,16,32}" for signed(s), unsigned(u) integer of 8,16,32 bits
-"vmulq_f{32,64}" for float32 and float64
+Ex. NEON bitwise select intrisics are named as below:
+- vbslq_{s,u}{8,16,32,64}: signed, unsigned integer of 8,16,32,64 bits
+- vbslq_f{32,64}:          float32 and float64
+- vbslq_p{8,16,64}:        polynomial of 8,16,64 bits
 Ex. NEON fp vector addition and subtraction intrinsics are named as below:
-"v{add,sub}q_f{32,64} for vaddq_f32, vaddq_f64, vsubq_f32, vsubq_f64
+- v{add,sub}q_f{32,64}:    vaddq_f32, vaddq_f64, vsubq_f32, vsubq_f64
 
 You only accept simple questions which can be classified as one or more
 intrinsic groups in the doc, otherwise just say you don't know.
@@ -633,9 +634,9 @@ compare two vectors by lane
 - intrin
   vc{eq,ge,gt,le,lt}q_{s,u}{8,16,32,64}
   vc{eq,ge,gt,le,lt}q_f{32,64}
+  vceqq_p{8,64}
 - note
   return per lane bitmask, all 1 if compare success, otherwise all 0
-  TODO: polynomial
 - example
   uint32x4_t vceqq_s32(int32x4_t a, int32x4_t b)
       +---------+---------+---------+---------+
@@ -656,9 +657,9 @@ compare each lane of a vector with 0
   vc{eq,ge,gt,le,lt}zq_s{8,16,32,64}
   vceqzq_u{8,16,32,64}
   vc{eq,ge,gt,le,lt}zq_f{32,64}
+  vceqzq_p{8,64}
 - note
   reference "NEON: compare vectors" to see how compare works
-  TODO: polynomial
 - example
   uint32x4_t vceqzq_s32(int32x4_t a) \
   --> res[n] = 0xffffffff is a[n] == 0 else 0x00000000
@@ -706,9 +707,8 @@ NEON: bitwise not equal to 0
 and two vectors bitwise, fill non-zero lane with 1
 - intrin
   vtstq_{s,u}{8,16,32,64} (vector)
+  vtstq_p{8,64}           (vector)
   vtstd_{s,u}64           (scalar)
-- note
-  TODO: polynomial
 - example
   uint32x4_t vtstq_s32(int32x4_t a, int32x4_t b) \
   --> res[n] = 0xffffffff if (a[n] & b[n]) else 0x00000000
@@ -790,9 +790,8 @@ NEON: shift left by const and insert
 shift vector left by const and insert lower bits from another vector
 - intrin
   vsliq_n_{s,u}{8,16,32,64}   (vector)
+  vsliq_n_p{8,16,64}          (vector)
   vslid_n_{s,u}64             (scalar)
-- note
-  TODO: polynomial
 - example
   int32x4_t vsliq_n_s32(int32x4_t a, int32x4_t b, const int c) \
          +-------------------+
@@ -890,9 +889,8 @@ NEON: shift right by const and insert
 shift vector right by const and insert higher bits from another vector
 - intrin
   vsriq_n_{s,u}{8,16,32,64}   (vector)
+  vsriq_n_p{8,16,64}          (vector)
   vsrid_n_{s,u}64             (scalar)
-- note
-  TODO: polynomial
 - example
   int32x4_t vsriq_n_s32(int32x4_t a, int32x4_t b, const int c) \
          +-------------------+
@@ -1027,9 +1025,8 @@ NEON: saturating negate
 NEON: bitwise not
 revert each bit of a vector
 - intrin
-  vmvnq_{s,u}{8,16,32,64}
-- note
-  TODO: polynomial
+  vmvnq_{s,u}{8,16,32}
+  vmvnq_p8
 - example
   int32x4_t vmvnq_s32(int32x4_t a) \
   --> res[n] = ~a[n]
@@ -1058,7 +1055,7 @@ NEON: count leading zeros
 NEON: population count
 count ones, ie. popcount
 - intrin
-  vcntq_{s,u}8
+  vcntq_{s,u,p}8
 
 
 NEON: bitwise clear
@@ -1076,12 +1073,12 @@ select from two vectors
 - intrin
   vbslq_{s,u}{8,16,32,64}
   vbslq_f{32,64}
+  vbslq_p{8,16,64}
 - note
   common use case is to select full lanes from two vectors by a mask vector
-  TODO: polynomial
 - example
   int32x4_t vbslq_s32(uint32x4_t mask, int32x4_t a, int32x4_t b) \
-  --> if (mask[n] == 0xffffffff) res[n] = a[n]; \
-      else if (mask[n] == 0x00000000) res[n] = b[n]; \
-      else res[n] = select_bits_from_an_bn_per_maskn
+  --> res[n] = select_bits_from_an_bn_per_maskn \
+      res[n] = a[n] if (mask[n] == 0xffffffff)  \
+      res[n] = b[n] if (mask[n] == 0x00000000)
 </neon_document>
