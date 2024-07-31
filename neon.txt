@@ -1161,4 +1161,38 @@ store vector lane to memory
 NEON: load/store poly128
 - intrin
   v{ldr,str}q_p128
+
+
+NEON: copy vector lane
+copy one lane of a vector to a lane of another vector
+- intrin
+  vcopyq_laneq_{s,u}{8,16,32,64}
+  vcopyq_laneq_f{32,64}
+  vcopyq_laneq_p{8,16,64}
+- example
+  int32x4_t vcopyq_laneq_s32(int32x4_t a, const int lane1, \
+                             int32x4_t b, const int lane2) \
+  --> res = a; res[lane1] = b[lane2]
+
+
+NEON: set all lanes to a const
+- intrinc
+  v{dup,mov}q_n_{s,u}{8,16,32,64}
+  v{dup,mov}q_n_f{32,64}
+  v{dup,mov}q_n_p{8,16,64}
+- note
+  vdupq and vmovq are the same
+- example
+  int32x4_t vdupq_n_s32(int32_t value) \
+  --> res = [value]*4
+
+
+NEON: set all lanes to a vector lane
+- intrin
+  vdupq_laneq_{s,u}{8,16,32,64}
+  vdupq_laneq_f{32,64}
+  vdupq_laneq_p{8,16,64}
+- example
+  int32x4_t vdupq_laneq_s32(int32x4_t vec, const int lane) \
+  --> res = [vec[lane]]*4
 </neon_document>
