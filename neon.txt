@@ -1081,4 +1081,84 @@ select from two vectors
   --> res[n] = select_bits_from_an_bn_per_maskn \
       res[n] = a[n] if (mask[n] == 0xffffffff)  \
       res[n] = b[n] if (mask[n] == 0x00000000)
+
+
+NEON: load
+load vector from memory
+- intrin
+  vld{1,2,3,4}q_{s,u}{8,16,32,64}
+  vld{1,2,3,4}q_f{32,64}
+  vld{1,2,3,4}q_p{8,16,64}
+  vld1q_{s,u}{8,16,32,64}_x{2,3,4}  (non-interleave)
+  vld1q_f{32,64}_x{2,3,4}           (non-interleave)
+  vld1q_p{8,16,64}_x{2,3,4}         (non-interleave)
+- example
+  const int32_t ptr[]{0,1,0,1,0,1,0,1}; \
+  int32x4x2_t vld2q_s32(const int32_t *ptr) \
+  --> res = {{0,0,0,0}, {1,1,1,1}}
+  const int32_t ptr[]{0,0,0,0,1,1,1,1}; \
+  int32x4x2_t vld1q_s32_x2(const int32_t *ptr) \
+  --> res = {{0,0,0,0}, {1,1,1,1}}
+
+
+NEON: load by lane
+load a vector lane from memory
+- intrin
+  vld{1,2,3,4}q_lane_{s,u}{8,16,32,64}
+  vld{1,2,3,4}q_lane_f{32,64}
+  vld{1,2,3,4}q_lane_p{8,16,64}
+- example
+  int32x4_t vld1q_lane_s32(const int32_t *ptr, int32x4_t src, \
+                           const int lane) \
+  --> res = src; res[lane] = *ptr;
+  int32x4x2_t vld2q_lane_s32(const int32_t *ptr, int32x4x2_t src, \
+                             const int lane) \
+  --> res = src; res[0][lane] = ptr[0]; res[1][lane] = ptr[1];
+
+
+NEON: load by scalar
+load a scalar from memory and populate all lanes of a vector
+- intrin
+  vld{1,2,3,4}q_dup_{s,u}{8,16,32,64}
+  vld{1,2,3,4}q_dup_f{32,64}
+  vld{1,2,3,4}q_dup_p{8,16,64}
+- example
+  int32x4x3_t vld3q_dup_s32(const int32_t *ptr) \
+  --> res[0] = [ptr[0]]*4; res[1] = [ptr[1]]*4; res[2] = [ptr[2]]*4
+
+
+NEON: store
+store vector to memory
+- intrin
+  vst{1,2,3,4}q_{s,u}{8,16,32,64}
+  vst{1,2,3,4}q_f{32,64}
+  vst{1,2,3,4}q_p{8,16,64}
+  vst1q_{s,u}{8,16,32,64}_x{2,3,4}  (non-interleave)
+  vst1q_f{32,64}_x{2,3,4}           (non-interleave)
+  vst1q_p{8,16,64}_x{2,3,4}         (non-interleave)
+- example
+  val = {{0,0,0,0}, {1,1,1,1}}; \
+  void vst2q_s32(int32_t *ptr, int32x4x2_t val) \
+  --> ptr -> {0,1,0,1,0,1,0,1}
+  val = {{0,0,0,0}, {1,1,1,1}}; \
+  void vst1q_s32_x2(int32_t *ptr, int32x4x2_t val) \
+  --> ptr -> {0,0,0,0,1,1,1,1}
+
+
+NEON: store by lane
+store vector lane to memory
+- intrin
+  vst{1,2,3,4}q_lane_{s,u}{8,16,32,64}
+  vst{1,2,3,4}q_lane_f{32,64}
+  vst{1,2,3,4}q_lane_p{8,16,64}
+- example
+  void vst1q_lane_s32(int32_t *ptr, int32x4_t src, const int lane) \
+  --> *ptr = src[lane]
+  void vst2q_lane_s32(int32_t *ptr, int32x4x2_t src, const int lane) \
+  --> ptr[0] = src[0][lane]; ptr[1] = src[1][lane];
+
+
+NEON: load/store poly128
+- intrin
+  v{ldr,str}q_p128
 </neon_document>
