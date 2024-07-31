@@ -1213,7 +1213,7 @@ concatenate two vectors to a wider vector
   --> res[0,1] = low, res[2,3] = high
 
 
-NEON: split vectors
+NEON: extract half vector
 extract lower or higher half of a vector
 - intrin
   vget_{high,low}_{s,u}{8,16,32,64}
@@ -1222,4 +1222,42 @@ extract lower or higher half of a vector
 - example
   int32x2_t vget_high_s32(int32x4_t a) \
   --> res[0] = a[2], res[1] = a[3]
+
+
+NEON: extract lane
+extract one lane from a vector
+- intrin
+  vgetq_lane_{s,u}{8,16,32,64}
+  vgetq_lane_f{32,64}
+  vgetq_lane_p{8,16,64}
+- note
+  vdup{b,h,s,d}_laneq_... with same functionality
+- example
+  int32_t vgetq_lane_s32(int32x4_t v, const int lane) \
+  --> res = v[lane]
+
+
+NEON: extract from two vectors
+cut a vector from two vectors concatenated
+- intrin
+  vextq_{s,u}{8,16,32,64}
+  vextq_f{32,64}
+  vextq_p{8,16,64}
+- note
+  can be used to round shift a vector by lane
+- example
+  int32x4_t vextq_s32(int32x4_t a, int32x4_t b, const int n)
+    +----+----+----+----+     +----+----+----+----+
+  b | b3 | b2 | b1 | b0 |   a | a3 | a2 | a1 | a0 |
+    +----+----+----+----+     +----+----+----+----+
+ ---------------------------------------------------
+               +----+----+----+----+
+  n = 1    res | b0 | a3 | a2 | a1 |
+               +----+----+----+----+
+               +----+----+----+----+
+  n = 2    res | b1 | b0 | a3 | a2 |
+               +----+----+----+----+
+               +----+----+----+----+
+  n = 3    res | b2 | b1 | b0 | a3 |
+               +----+----+----+----+
 </neon_document>
