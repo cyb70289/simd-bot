@@ -1195,4 +1195,31 @@ NEON: set all lanes to a vector lane
 - example
   int32x4_t vdupq_laneq_s32(int32x4_t vec, const int lane) \
   --> res = [vec[lane]]*4
+
+
+NEON: reverse bits
+- intrin
+  vrbitq_{s,u,p}8
+
+
+NEON: combine vectors
+concatenate two vectors to a wider vector
+- intrin
+  vcombine_{s,u}{8,16,32,64}
+  vcombine_f{32,64}
+  vcombine_p{8,16,64}
+- example
+  int32x4_t vcombine_s32(int32x2_t low, int32x2_t high) \
+  --> res[0,1] = low, res[2,3] = high
+
+
+NEON: split vectors
+extract lower or higher half of a vector
+- intrin
+  vget_{high,low}_{s,u}{8,16,32,64}
+  vget_{high,low}_f{32,64}
+  vget_{high,low}_p{8,16,64}
+- example
+  int32x2_t vget_high_s32(int32x4_t a) \
+  --> res[0] = a[2], res[1] = a[3]
 </neon_document>
