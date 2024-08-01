@@ -1260,4 +1260,26 @@ cut a vector from two vectors concatenated
                +----+----+----+----+
   n = 3    res | b2 | b1 | b0 | a3 |
                +----+----+----+----+
+
+
+NEON: reverse lanes
+reverse lanes in chunk, for endianness adjustment
+- intrin
+  vrev64q_{s,u}{8,16,32}
+  vrev64q_f32
+  vrev64q_p{8,16}
+  vreq32q_{s,u,p}{8,16}
+  vreq16q_{s,u,p}8
+- note
+  vreq[n]q_s[m]: cut vector to 128/n chunks, treat m bits as an element,
+                 swap ordering of n/m elements in each chunk
+- example
+  int32x4_t vrev64q_s32(int32x4_t v)
+     +----+----+----+----+
+  a  | a3 | a2 | a1 | a0 |
+     +----+----+----+----+
+ --------------------------
+     +----+----+----+----+
+ res | a3 | a2 | a1 | a0 |
+     +----+----+----+----+
 </neon_document>
