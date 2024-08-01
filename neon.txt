@@ -68,8 +68,7 @@ add/sub two vectors lane by lane vertically
   v{add,sub}q_f{32,64}
 - example
   int32x4_t vaddq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = a[n] + b[n]
-
+  --> res[i] = a[i] + b[i]
 
 NEON: widening add/sub #1
 add two vectors and widen the result
@@ -93,7 +92,6 @@ add two vectors and widen the result
  res2 | a3 + b3 | a2 + b2 |
       +---------+---------+
 
-
 NEON: widening add/sub #2
 add/sub a vector to/from a wider vector
 - intrin
@@ -116,7 +114,6 @@ add/sub a vector to/from a wider vector
  res2 | a1 + b3 | a0 + b2 |
       +---------+---------+
 
-
 NEON: halving add/sub
 add/sub two vectors and halving the result
 - intrin
@@ -125,8 +122,7 @@ add/sub two vectors and halving the result
   the result is shifted right by 1 bit, not divide by 2
 - example
   int32x4_t vhaddq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = (a[n] + b[n]) >> 1
-
+  --> res[i] = (a[i] + b[i]) >> 1
 
 NEON: narrowing add/sub
 add/sub two vectors and narrow the result
@@ -155,7 +151,6 @@ add/sub two vectors and narrow the result
   res2| h  | l  | r1 | r0 | h = hi32(a1+b1), l = hi32(a0+b0)
       +----+----+----+----+
 
-
 NEON: saturating add/sub
 add/sub two vectors and saturate the result
 - intrin
@@ -168,8 +163,7 @@ add/sub two vectors and saturate the result
   vsq...: uint +/- sint -> uint
 - example:
   int32x4_t vqaddq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = saturate(a[n] + b[n])
-
+  --> res[i] = saturate(a[i] + b[i])
 
 NEON: saturating add/sub scalars
 add/sub two scalars and saturate the result
@@ -194,7 +188,6 @@ add/sub two scalars and saturate the result
   int32_t vqsubs_s32(int32_t a, int32_t b) \
   --> res = saturate(a - b)
 
-
 NEON: multiply
 multiply two vectors
 - intrin
@@ -205,8 +198,7 @@ multiply two vectors
   vmulxq_f.. multiplies two floating point vectors with extended precision
 - example
   int32x4_t vmulq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = a[n] * b[n]
-
+  --> res[i] = a[i] * b[i]
 
 NEON: multiply by lane
 multiply a vector or scalar by a lane of another vector
@@ -220,10 +212,9 @@ multiply a vector or scalar by a lane of another vector
   vmulxq_laneq_f.. multiplies two floating point vectors with extended precision
 - example
   float32x4_t vmulq_laneq_f32(float32x4_t a, float32x4_t v, const int lane) \
-  --> res[n] = a[n] * v[lane]
+  --> res[i] = a[i] * v[lane]
   float32_t vmuls_laneq_f32(float32_t a, float32x4_t v, const int lane) \
   --> res = a * v[lane]
-
 
 NEON: multiply by scalar
 multiply a vector by a scalar
@@ -231,9 +222,8 @@ multiply a vector by a scalar
   vmulq_n_{s,u}{16,32}
   vmulq_n_f{32,64}
 - example
-  int32x4_t vmulq_n_s32(int32x4_t a, int32_t b) \
-  --> res[n] = a[n] * b
-
+  int32x4_t vmulq_n_s32(int32x4_t a, int32_t n) \
+  --> res[i] = a[i] * n
 
 NEON: multiply scalar by lane
 multiply a scalar by a vector lane
@@ -244,15 +234,13 @@ multiply a scalar by a vector lane
   float32_t vmulxs_laneq_f32(float32_t a, float32x4_t v, const int lane) \
   --> res = a * v[lane]
 
-
 NEON: multiply-accumulate
 multiply two integer vectors and add-to/subtract-from another
 - intrin
   vml{a,s}q_{s,u}{8,16,32}
 - example:
   int32x4_t vmlaq_s32(int32x4_t a, int32x4_t b, int32x4_t c) \
-  --> res[n] = a[n] + b[n] * c[n]
-
+  --> res[i] = a[i] + b[i] * c[i]
 
 NEON: multiply-accumulate by lane
 multiply integer vector with one lane of another vector, and \
@@ -262,8 +250,7 @@ add-to/subtract-from a third vector
 - example
   int32x4_t vmlaq_laneq_s32(int32x4_t a, int32x4_t b, int32x4_t v, \
                             const int lane) \
-  --> res[n] = a[n] + b[n] * v[lane]
-
+  --> res[i] = a[i] + b[i] * v[lane]
 
 NEON: multiply-acculmulate by scalar
 multiply vector with scalar, add-to/subtract-from another vector
@@ -271,9 +258,8 @@ multiply vector with scalar, add-to/subtract-from another vector
   vml{a,s}q_n_{s,u}{16,32}
   vml{a,s}q_n_f32
 - example
-  int32x4_t vmlsq_n_s32(int32x4_t a, int32x4_t b, int32_t c) \
-  --> res[n] = a[n] - b[n] * c
-
+  int32x4_t vmlsq_n_s32(int32x4_t a, int32x4_t b, int32_t n) \
+  --> res[i] = a[i] - b[i] * n
 
 NEON: multiply-accumulate and widen
 multiply two vectors, wide the result, and add-to/subtract-from another
@@ -284,10 +270,9 @@ multiply two vectors, wide the result, and add-to/subtract-from another
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vmlal_s32(int64x2_t a, int32x2_t b, int32x2_t c) \
-  --> res[n] = a[n] + b[n] * c[n]
+  --> res[i] = a[i] + b[i] * c[i]
   int64x2_t vmlal_high_s32(int64x2_t a, int32x4_t b, int32x4_t c) \
-  --> res[n] = a[n] + b[n+2] * c[n+2]
-
+  --> res[i] = a[i] + b[i+2] * c[i+2]
 
 NEON: multiply-accumulate by lane and widen
 multipy a vector with a lane of another vector, widen the result, \
@@ -300,11 +285,10 @@ and add-to/subtract from a third vector
 - example
   int64x2_t vmlal_laneq_s32(int64x2_t a, int32x2_t b, int32x4_t v, \
                             const int lane) \
-  --> res[n] = a[n] + b[n] * v[lane]
+  --> res[i] = a[i] + b[i] * v[lane]
   int64x2_t vmlal_high_laneq_s32(int64x2_t a, int32x4_t b, int32x4_t v, \
                                  const int lane) \
-  --> res[n] = a[n] + b[n+2] * v[lane]
-
+  --> res[i] = a[i] + b[i+2] * v[lane]
 
 NEON: multiply-accumulate by scalar and widen
 multipy a vector with a scalar, widen the result, \
@@ -315,11 +299,10 @@ and add-to/subtract-from a third vector
 - note
   reference "NEON: widening add/sub #1" to see how widen works
 - example
-  int64x2_t vmlsl_n_s32(int64x2_t a, int32x2_t b, int32_t c) \
-  --> res[n] = a[n] - b[n] * c
-  int64x2_t vmlsl_high_n_s32(int64x2_t a, int32x4_t b, int32_t c) \
-  --> res[n] = a[n] - b[n+2] * c
-
+  int64x2_t vmlsl_n_s32(int64x2_t a, int32x2_t b, int32_t n) \
+  --> res[i] = a[i] - b[i] * n
+  int64x2_t vmlsl_high_n_s32(int64x2_t a, int32x4_t b, int32_t n) \
+  --> res[i] = a[i] - b[i+2] * n
 
 NEON: fused multiply-accumulate
 multiply two floating point vectors and add-to/subtract-from another
@@ -327,8 +310,7 @@ multiply two floating point vectors and add-to/subtract-from another
   vfm{a,s}q_f{32,64}
 - example
   float32x4_t vfmaq_f32(float32x4_t a, float32x4_t b, float32x4_t c) \
-  --> res[n] = a[n] + b[n] * c[n]
-
+  --> res[i] = a[i] + b[i] * c[i]
 
 NEON: fused multiply-accumulate by lane
 multiply vector with a lane of another vector, and \
@@ -338,8 +320,7 @@ add-to/subtract-from a third vector
 - example
   float32x4_t vfmaq_laneq_f32(float32x4_t a, float32x4_t b, \
                               float32x4_t v, const int lane) \ 
-  --> res[n] = a[n] + b[n] * v[lane]
-
+  --> res[i] = a[i] + b[i] * v[lane]
 
 NEON: fused multiply-accumulate scalar by lane
 multiply a scalar with one lane of a vector, and \
@@ -352,15 +333,13 @@ add-to/subtract-from another scalar
                             const int lane) \
   --> res = a + b * v[lane]
 
-
 NEON: fused multiply-accumulate by scalar
 multiply a vector with a scalar, and add-to/subtract-from another vector
 - intrin
   vfm{a,s}q_n_f{32,64}
 - example
-  float32x4_t vfmsq_n_f32(float32x4_t a, float32x4_t b, float32_t c) \
-  --> res]n] = a]n] - b[n] * c
-
+  float32x4_t vfmsq_n_f32(float32x4_t a, float32x4_t b, float32_t n) \
+  --> res[i] = a[i] - b[i] * n
 
 NEON: saturating multiply
 multiply two vectors, double and saturate the result, then \
@@ -370,8 +349,7 @@ keep the most significant half
   vqrdmulhq_s{16,32} (rounded)
 - example
   int32x4_t vqdmulhq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = high32(saturate(2 * a[n] * b[n]))
-
+  --> res[i] = high32(saturate(2 * a[i] * b[i]))
 
 NEON: saturating multiply and widen
 multiply two vectors, double and saturate the result, then \
@@ -383,10 +361,9 @@ save to a wider vector
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vqdmull_s32(int32x2_t a, int32x2_t b) \
-  --> res[n] = saturate(2 * a[n] * b[n])
+  --> res[i] = saturate(2 * a[i] * b[i])
   int64x2_t vqdmull_high_s32(int32x2_t a, int32x2_t b) \
-  --> res[n] = saturate(2 * a[n+2] * b[n+2])
-
+  --> res[i] = saturate(2 * a[i+2] * b[i+2])
 
 NEON: saturating multiply scalars
 - intrin
@@ -398,7 +375,6 @@ NEON: saturating multiply scalars
   int32_t vqdmulhs_s32(int32_t a, int32_t b) \
   --> res = saturate(2 * a * b)
 
-
 NEON: widening multiply
 multiply two vectors, save result to a wider vector
 - intrin
@@ -408,10 +384,9 @@ multiply two vectors, save result to a wider vector
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vmull_s32(int32x2_t a, int32x2_t b) \
-  --> res[n] = a[n] * b[n]
+  --> res[i] = a[i] * b[i]
   int64x2_t vmull_high_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = a[n+2] * b[n+2]
-
+  --> res[i] = a[i+2] * b[i+2]
 
 NEON: widening multiply by lane
 multiply a vector by a lane of another vector, widen the result
@@ -422,10 +397,9 @@ multiply a vector by a lane of another vector, widen the result
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vmull_lane_s32(int32x2_t a, int32x2_t v, const int lane) \
-  --> res[n] = a[n] * v[lane]
+  --> res[i] = a[i] * v[lane]
   int64x2_t vmull_high_laneq_s32(int32x4_t a, int32x4_t v, const int lane) \
-  --> res[n] = a[n+2] * v[lane]
-
+  --> res[i] = a[i+2] * v[lane]
 
 NEON: widening multiply by scalar
 multiply a vector by a scalar, widen the result
@@ -435,11 +409,10 @@ multiply a vector by a scalar, widen the result
 - note
   reference "NEON: widening add/sub #1" to see how widen works
 - example
-  int64x2_t vmull_n_s32(int32x2_t a, int32_t b) \
-  --> res[n] = a[n] * b
-  int64x2_t vmull_high_n_s32(int32x4_t a, int32_t b) \
-  --> res]n] = a[n+2] * b
-
+  int64x2_t vmull_n_s32(int32x2_t a, int32_t n) \
+  --> res[i] = a[i] * n
+  int64x2_t vmull_high_n_s32(int32x4_t a, int32_t n) \
+  --> res[i] = a[i+2] * n
 
 # TODO
 # NEON: saturating multiply-accumulate
@@ -447,14 +420,12 @@ multiply a vector by a scalar, widen the result
 # NEON: saturating multiply-accumulate by scalar and widen
 # NEON: polynomial multiply
 
-
 NEON: division
 - intrin
   vdivq_f{32,64}
 - example
   float32x4_t vdivq_f32(float32x4_t a, float32x4_t b) \
-  --> res[n] = a[n] / b[n]
-
+  --> res[i] = a[i] / b[i]
 
 NEON: absolute difference
 calcluate per lane distance of two vectors
@@ -466,8 +437,7 @@ calcluate per lane distance of two vectors
   eg. distance of int8 number 127 and -128 is 255, but abd(127, -128) = -1
 - example
   int32x4_t vabdq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = |a[n] - b[n]|
-
+  --> res[i] = |a[i] - b[i]|
 
 NEON: absolute difference of scalars
 calcuate distance of two numbers
@@ -476,7 +446,6 @@ calcuate distance of two numbers
   vabdd_f64
 - note
   just use "fabs(a - b)"
-
 
 NEON: widening absolute difference
 cacluate per lane distance of two vectors, save to a wider vector
@@ -487,10 +456,9 @@ cacluate per lane distance of two vectors, save to a wider vector
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vabdl_s32(int32x2_t a, int32x2_t b) \
-  --> res[n] = |a[n] - b[n]|
+  --> res[i] = |a[i] - b[i]|
   int64x2_t vabdl_high_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = |a[n+2] - b[n+2]|
-
+  --> res[i] = |a[i+2] - b[i+2]|
 
 NEON: absolute difference and accumulate
 add per lane distance of two vectors to another vector
@@ -498,8 +466,7 @@ add per lane distance of two vectors to another vector
   vabaq_{s,u}{8,16,32}
 - example
   int32x4_t vabaq_s32(int32x4_t a, int32x4_t b, int32x4_t c) \
-  --> res[n] = a[n] + |b[n] - c[n]|
-
+  --> res[i] = a[i] + |b[i] - c[i]|
 
 NEON: widening absolute difference and accumulate
 add per lane distance of two vectors and add to a wide vector
@@ -510,8 +477,7 @@ add per lane distance of two vectors and add to a wide vector
   reference "NEON: widening add/sub #1" to see how widen works
 - example
   int64x2_t vabal_s32(int64x2_t a, int32x2_t b, int32x2_t c) \
-  -->  res[n] = a[n] + b[n] * c[n]
-
+  -->  res[i] = a[i] + b[i] * c[i]
 
 NEON: absolute value
 calcuate absolute value of each lane
@@ -520,8 +486,7 @@ calcuate absolute value of each lane
   vabsq_f{32,64}
 - example
   int32x4_t vabsq_s32(int32x4_t a) \
-  --> res[n] = |a[n]|
-
+  --> res[i] = |a[i]|
 
 NEON: maximum/minimum
 get maximum/minimum of each lane from two vectors
@@ -530,14 +495,12 @@ get maximum/minimum of each lane from two vectors
   v{max,min}q_f{32,64}
 - example
   int32x4_t vmaxq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = max(a[n], b[n])
-
+  --> res[i] = max(a[i], b[i])
 
 # TODO
 # NEON: rounding
 # NEON: reciprocal
 # NEON: square root
-
 
 NEON: pairwise add
 add every two adjacent lanes
@@ -557,7 +520,6 @@ add every two adjacent lanes
   res |  b3+b2  |  b1+b0  |  a3+a2  |  a1+a0  |
       +---------+---------+---------+---------+
 
-
 NEON: pairwise add and widen
 do pairwise addition, save result to a wider vector
 - intrin
@@ -570,7 +532,6 @@ do pairwise addition, save result to a wider vector
   --> res[0] = a[0] + a[1], \
       res[1] = a[2] + a[3]
 
-
 NEON: pairwise add and widen accumulate
 do pairwise addition, widen the result, and add to a wider vector
 - intrin
@@ -582,7 +543,6 @@ do pairwise addition, widen the result, and add to a wider vector
   int64x2_t vpadalq_s32(int64x2_t a, int32x4_t b) \
   --> res[0] = a[0] + (b[0] + b[1]), \
       res[1] = a[1] + (b[2] + b[3])
-
 
 NEON: pairwise maximum/minimum
 - intrin
@@ -598,7 +558,6 @@ NEON: pairwise maximum/minimum
       res[2] = max(b[0], b[1]), \
       res[3] = max(b[2], b[3])
 
-
 NEON: add across vector
 horizontal sum over all lanes
 - intrin
@@ -608,7 +567,6 @@ horizontal sum over all lanes
   int32_t vaddvq_s32(int32x4_t a) \
   --> res = a[0] + a[1] + a[2] + a[3]
 
-
 NEON: add across vector and widen
 horizontal sum over all lanes, widen result
 - intrin
@@ -616,7 +574,6 @@ horizontal sum over all lanes, widen result
 - example
   int64_t vaddlvq_s32(int32x4_t a) \
   --> res = a[0] + a[1] + a[2] + a[3]
-
 
 NEON: maximum/minimum across vector
 find maximum/minimum value of all lanes
@@ -627,7 +584,6 @@ find maximum/minimum value of all lanes
 - example
   int32_t vmaxvq_s32(int32x4_t a) \
   -> res = max(a[0], a[1], a[2], a[3])
-
 
 NEON: compare
 compare two vectors by lane
@@ -650,7 +606,6 @@ compare two vectors by lane
   res |ffffffff |00000000 |00000000 |ffffffff |
       +---------+---------+---------+---------+
 
-
 NEON: compare with 0
 compare each lane of a vector with 0
 - intrin
@@ -662,8 +617,7 @@ compare each lane of a vector with 0
   reference "NEON: compare vectors" to see how compare works
 - example
   uint32x4_t vceqzq_s32(int32x4_t a) \
-  --> res[n] = 0xffffffff is a[n] == 0 else 0x00000000
-
+  --> res[i] = 0xffffffff is a[i] == 0 else 0x00000000
 
 NEON: compare scalars
 compare two scalars and set bitmask in the result
@@ -677,7 +631,6 @@ compare two scalars and set bitmask in the result
   uint32_t vceqs_f32(float32_t a, float32_t b) \
   --> res = 0xffffffff is a == b else 0x00000000
 
-
 NEON: compare scalar with 0
 - intrin
   vc{eq,ge,gt,le,lt}zd_s64
@@ -690,7 +643,6 @@ NEON: compare scalar with 0
   uint32_t vceqzs_f32(float32_t a) \
   --> res = 0xffffffff if a == 0 else 0x00000000
 
-
 NEON: compare absolute values
 - intrin
   vca{ge,le,gt,lt}q_f{32,64}  (vector)
@@ -698,10 +650,9 @@ NEON: compare absolute values
   vca{ge,le,gt,lt}d_f64       (scalar)
 - example
   uint32x4_t vcaltq_f32(float32x4_t a, float32x4_t b) \
-  --> res[n] = 0xffffffff if |a| < |b| else 0x00000000
+  --> res[i] = 0xffffffff if |a| < |b| else 0x00000000
   uint32_t vcages_f32(float32_t a, float32_t b) \
   --> res = 0xffffffff if |a| >= |b| else 0x00000000
-
 
 NEON: bitwise not equal to 0
 and two vectors bitwise, fill non-zero lane with 1
@@ -711,10 +662,9 @@ and two vectors bitwise, fill non-zero lane with 1
   vtstd_{s,u}64           (scalar)
 - example
   uint32x4_t vtstq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = 0xffffffff if (a[n] & b[n]) else 0x00000000
+  --> res[i] = 0xffffffff if (a[i] & b[i]) else 0x00000000
   uint64_t vtstd_s64(int64_t a, int64_t b) \
   --> res = -1ULL if (a & b) else 0
-
 
 NEON: shift left
 left shift first vector by the least significant byte of the second vector
@@ -722,22 +672,19 @@ left shift first vector by the least significant byte of the second vector
   vshlq_{s,u}{8,16,32,64}
 - example
   uint32x4_t vshlq_s32(uint32x4_t a, int32x4_t b) \
-  --> res[n] = a[n] << uint8(b[n])
-
+  --> res[i] = a[i] << uint8(b[i])
 
 NEON: shift left/right by const
 - intrin
   vsh{l,r}q_n_s{8,16,32,64}
 - example
-  int32x4_t vshlq_n_s32(int32x4_t a, const int c) \
-  --> res[n] = a[n] << c
-
+  int32x4_t vshlq_n_s32(int32x4_t a, const int n) \
+  --> res[i] = a[i] << n
 
 NEON: rounding shift left
 - intrin
   vrshlq_{s,u}{8,16,32,64}  (vector)
   vrsqld_{s,u}64            (scalar)
-
 
 NEON: saturating shift left
 saturate left a vector by least significant bytes of another vector
@@ -749,10 +696,9 @@ saturate left a vector by least significant bytes of another vector
   vqshld_{s,u}64            (scalar)
 - example
   int32x4_t vqshlq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = saturate(a[n] << uint8(b[n]))
+  --> res[i] = saturate(a[i] << uint8(b[i]))
   uint32_t vqshls_u32(uint32_t a, int32_t b) \
-  --> res = saturate(a[n] << uint8(b))
-
+  --> res = saturate(a[i] << uint8(b))
 
 NEON: saturating shift left by const
 - intrin
@@ -762,7 +708,6 @@ NEON: saturating shift left by const
   vqshls_n_{s,u}32            (scalar)
   vqshld_n_{s,u}64            (scalar)
 
-
 NEON: saturating rounding shift left
 - intrin
   vqrshlq_{s,u}{8,16,32,64}  (vector)
@@ -770,7 +715,6 @@ NEON: saturating rounding shift left
   vqrshlh_{s,u}16            (scalar)
   vqrshls_{s,u}32            (scalar)
   vqrshld_{s,u}64            (scalar)
-
 
 NEON: shift left by const and widen
 shift vector left by const and save to a wider vector
@@ -780,11 +724,10 @@ shift vector left by const and save to a wider vector
 - note
   reference "NEON: widening add/sub #1" to see how widen works
 - example
-  int64x2_t vshll_n_s32(int32x2_t a, const int c) \
-  --> res[n] = a[n] << c
-  int64x2_t vshll_high_n_s32(int32x4_t a, const int c) \
-  --> res[n] = a[n+2] << c
-
+  int64x2_t vshll_n_s32(int32x2_t a, const int n) \
+  --> res[i] = a[i] << n
+  int64x2_t vshll_high_n_s32(int32x4_t a, const int n) \
+  --> res[i] = a[i+2] << n
 
 NEON: shift left by const and insert
 shift vector left by const and insert lower bits from another vector
@@ -793,23 +736,21 @@ shift vector left by const and insert lower bits from another vector
   vsliq_n_p{8,16,64}          (vector)
   vslid_n_{s,u}64             (scalar)
 - example
-  int32x4_t vsliq_n_s32(int32x4_t a, int32x4_t b, const int c) \
+  int32x4_t vsliq_n_s32(int32x4_t a, int32x4_t b, const int n) \
          +-------------------+
-   a[n]  |                   |
+   a[i]  |                   |
          +-------------------+
          +-------------------+
-   b[n]  |    bh        bl   |
+   b[i]  |    bh        bl   |
          +----------^--------^
                     | c bits |
  ------------------------------
-  res[n] = (a[n] << c) | bl
-
+  res[i] = (a[i] << n) | bl
 
 NEON: rounding shift right by const
 - intrin
   vrshrq_n_{s,u}{8,16,32,64}  (vector)
   vrshrd_n_{s,u}64            (scalar)
-
 
 NEON: shift right by const and accumulate
 shift a vector right by const and add to another vector
@@ -817,15 +758,13 @@ shift a vector right by const and add to another vector
   vsraq_n_{s,u}{8,16,32,64}  (vector)
   vsrad_n_{s,u}64            (scalar)
 - example
-  int32x4_t vsraq_n_s32(int32x4_t a, int32x4_t b, const int c) \
-  --> res[n] = a[n] + (b[n] << c)
-
+  int32x4_t vsraq_n_s32(int32x4_t a, int32x4_t b, const int n) \
+  --> res[i] = a[i] + (b[i] << n)
 
 NEON: rounding shift right by const and accumulate
 - intrin
   vrsraq_n_{s,u}{8,16,32,64}  (vector)
   vrsrad_n_{s,u}64            (scalar)
-
 
 NEON: shift right by const and narrow
 - intrin
@@ -835,13 +774,12 @@ NEON: shift right by const and narrow
   reference "NEON: narrowing add/sub" to see how narrow works
   TBD: pick high half or low half?
 - example
-  int32x2_t vshrn_n_s64(int64x2_t a, const int c) \
-  --> res[n] = to32(a[n] << c)
-  int32x4_t vshrn_high_n_s64(int32x2_t r, int64x2_t a, const int c) \
+  int32x2_t vshrn_n_s64(int64x2_t a, const int n) \
+  --> res[i] = to32(a[i] << n)
+  int32x4_t vshrn_high_n_s64(int32x2_t r, int64x2_t a, const int n) \
   --> res[0,1] = r[0,1]
-      res[2] = to32(a[0] << c)
-      res[3] = to32(a[1] << c)
-
+      res[2] = to32(a[0] << n)
+      res[3] = to32(a[1] << n)
 
 NEON: rounding shift right by const and narrow
 - intrin
@@ -849,7 +787,6 @@ NEON: rounding shift right by const and narrow
   vrshrn_high_n_{s,u}{16,32,64}
 - note
   reference "NEON: shift right by const and narrow" to see how narrow works
-
 
 NEON: saturating shift right by const and narrow
 - intrin
@@ -867,7 +804,6 @@ NEON: saturating shift right by const and narrow
   vqshrun...: converts signed to unsigned
   reference "NEON: shift right by const and narrow" to see how narrow works
 
-
 NEON: saturating rounding shift right by const and narrow
 - intrin
   vqrshrn_n_{s,u}{16,32,64}       (vector)
@@ -884,7 +820,6 @@ NEON: saturating rounding shift right by const and narrow
   vqrshrun...: converts signed to unsigned
   reference "NEON: shift right by const and narrow" to see how narrow works
 
-
 NEON: shift right by const and insert
 shift vector right by const and insert higher bits from another vector
 - intrin
@@ -892,17 +827,16 @@ shift vector right by const and insert higher bits from another vector
   vsriq_n_p{8,16,64}          (vector)
   vsrid_n_{s,u}64             (scalar)
 - example
-  int32x4_t vsriq_n_s32(int32x4_t a, int32x4_t b, const int c) \
+  int32x4_t vsriq_n_s32(int32x4_t a, int32x4_t b, const int n) \
          +-------------------+
-   a[n]  |                   |
+   a[i]  |                   |
          +-------------------+
          +-------------------+
-   b[n]  |    bh        bl   |
+   b[i]  |    bh        bl   |
          ^----------^--------+
          |  c bits  |
  ------------------------------
-  res[n] = (a[n] >> c) | bh
-
+  res[i] = (a[i] >> n) | bh
 
 NEON: convert float to integer
 - intrin
@@ -918,8 +852,7 @@ NEON: convert float to integer
   vcvtaq_...: round to nearest with ties to away
 - example
   int32x4_t vcvtq_s32_f32(float32x4_t a) \
-  --> res[n] = int32(a[n])
-
+  --> res[i] = int32(a[i])
 
 NEON: convert integer to float
 - intrin
@@ -929,12 +862,11 @@ NEON: convert integer to float
   vcvts_f64_{s,u}64  (scalar)
 - example
   float32x4_t vcvtq_f32_s32(int32x4_t a) \
-  --> res[n] = float(a[n])
+  --> res[i] = float(a[i])
  
 
 # TODO
 # vcvt{,n,m,p,a}q_n_xxx
-
 
 NEON: reinterpret cast
 cast vector to another type
@@ -944,7 +876,6 @@ cast vector to another type
   TODO: polynomial
 - example
   uint32x4_t vreinterpretq_u32_s64(int64x2_t a)
-
 
 NEON: narrow a vector
 move a vector to a narrower one
@@ -970,7 +901,6 @@ move a vector to a narrower one
   res2| a1l| a0l| r1 | r0 |
       +----+----+---------+
 
-
 NEON: widen a vector
 move a vector to a wider one
 - intrin
@@ -978,10 +908,9 @@ move a vector to a wider one
   vmovl_high_{s,u}{8,16,32}
 - example
   int64x2_t vmovl_s32(int32x2_t a) \
-  --> res[n] = a[n]
+  --> res[i] = a[i]
   int64x2_t vmovl_high_s32(int32x4_t a) \
-  --> res[n] = a[n+2]
-
+  --> res[i] = a[i+2]
 
 NEON: saturaring narrow
 - intrin
@@ -998,15 +927,13 @@ NEON: saturaring narrow
 - note
   vqmovun...: converts signed to unsigned
 
-
 NEON: negate
 - intrin
   vnegq_s{8,16,32,64}
   vnegq_f{32,64}
 - example
   int32x4_t vnegq_s32(int32x4_t a) \
-  --> res[n] = -a[n]
-
+  --> res[i] = -a[i]
 
 NEON: saturating negate
 - intrin
@@ -1017,10 +944,9 @@ NEON: saturating negate
   vqnegqd_s64           (scalar)
 - example
   int32x4_t vqnegq_s32(int32x4_t a) \
-  --> res[n] = saturate(-a[n])
+  --> res[i] = saturate(-a[i])
   int32_t vqnegs_s32(int32_t a) \
   --> res = saturate(-n)
-
 
 NEON: bitwise not
 revert each bit of a vector
@@ -1029,16 +955,14 @@ revert each bit of a vector
   vmvnq_p8
 - example
   int32x4_t vmvnq_s32(int32x4_t a) \
-  --> res[n] = ~a[n]
-
+  --> res[i] = ~a[i]
 
 NEON: bitwise and/or/exclusive-or/or-not
 - intrin
   v{and,orr,eor,orn}q_{s,u}{8,16,32,64}
 - example
   int32x4_t vornq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = a[n] | (~b[n])
-
+  --> res[i] = a[i] | (~b[i])
 
 NEON: count leading redundant sign bits
 count number of bits following the most significant bit \
@@ -1046,17 +970,14 @@ that are identical to it
 - intrin
   vclsq_{s,u}{8,16,32}
 
-
 NEON: count leading zeros
 - intrin
   vclzq_{s,u}{8,16,32}
-
 
 NEON: population count
 count ones, ie. popcount
 - intrin
   vcntq_{s,u,p}8
-
 
 NEON: bitwise clear
 clear bits in first vector that is set in second vector, \
@@ -1065,8 +986,7 @@ effectively an and-not operation
   vbicq_{s,u}{8,16,32,64}
 - example
   int32x4_t vbicq_s32(int32x4_t a, int32x4_t b) \
-  --> res[n] = a[n] & (~b[n])
-
+  --> res[i] = a[i] & (~b[i])
 
 NEON: bitwise select
 select from two vectors
@@ -1078,10 +998,9 @@ select from two vectors
   common use case is to select full lanes from two vectors by a mask vector
 - example
   int32x4_t vbslq_s32(uint32x4_t mask, int32x4_t a, int32x4_t b) \
-  --> res[n] = select_bits_from_an_bn_per_maskn \
-      res[n] = a[n] if (mask[n] == 0xffffffff)  \
-      res[n] = b[n] if (mask[n] == 0x00000000)
-
+  --> res[i] = select_bits_from_an_bn_per_maskn \
+      res[i] = a[i] if (mask[i] == 0xffffffff)  \
+      res[i] = b[i] if (mask[i] == 0x00000000)
 
 NEON: load
 load vector from memory
@@ -1100,7 +1019,6 @@ load vector from memory
   int32x4x2_t vld1q_s32_x2(const int32_t *ptr) \
   --> res = {{0,0,0,0}, {1,1,1,1}}
 
-
 NEON: load by lane
 load a vector lane from memory
 - intrin
@@ -1115,7 +1033,6 @@ load a vector lane from memory
                              const int lane) \
   --> res = src; res[0][lane] = ptr[0]; res[1][lane] = ptr[1];
 
-
 NEON: load by scalar
 load a scalar from memory and populate all lanes of a vector
 - intrin
@@ -1125,7 +1042,6 @@ load a scalar from memory and populate all lanes of a vector
 - example
   int32x4x3_t vld3q_dup_s32(const int32_t *ptr) \
   --> res[0] = [ptr[0]]*4; res[1] = [ptr[1]]*4; res[2] = [ptr[2]]*4
-
 
 NEON: store
 store vector to memory
@@ -1144,7 +1060,6 @@ store vector to memory
   void vst1q_s32_x2(int32_t *ptr, int32x4x2_t val) \
   --> ptr -> {0,0,0,0,1,1,1,1}
 
-
 NEON: store by lane
 store vector lane to memory
 - intrin
@@ -1157,11 +1072,9 @@ store vector lane to memory
   void vst2q_lane_s32(int32_t *ptr, int32x4x2_t src, const int lane) \
   --> ptr[0] = src[0][lane]; ptr[1] = src[1][lane];
 
-
 NEON: load/store poly128
 - intrin
   v{ldr,str}q_p128
-
 
 NEON: copy vector lane
 copy one lane of a vector to a lane of another vector
@@ -1173,7 +1086,6 @@ copy one lane of a vector to a lane of another vector
   int32x4_t vcopyq_laneq_s32(int32x4_t a, const int lane1, \
                              int32x4_t b, const int lane2) \
   --> res = a; res[lane1] = b[lane2]
-
 
 NEON: set all lanes to a const
 fill all lanes of a vector with a const
@@ -1187,7 +1099,6 @@ fill all lanes of a vector with a const
   int32x4_t vdupq_n_s32(int32_t value) \
   --> res = [value]*4
 
-
 NEON: set all lanes to a vector lane
 fill all lanes of a vector with one lane of another vector
 - intrin
@@ -1197,7 +1108,6 @@ fill all lanes of a vector with one lane of another vector
 - example
   int32x4_t vdupq_laneq_s32(int32x4_t vec, const int lane) \
   --> res = [vec[lane]]*4
-
 
 NEON: set one lane of a vecotr
 fill one specific lane of a vector with a const
@@ -1209,11 +1119,9 @@ fill one specific lane of a vector with a const
   int32x4_t vsetq_lane_s32(int32_t a, int32x4_t v, const int lane) \
   --> res = v, res[lane] = a
 
-
 NEON: reverse bits
 - intrin
   vrbitq_{s,u,p}8
-
 
 NEON: combine vectors
 concatenate two vectors to a wider vector
@@ -1225,7 +1133,6 @@ concatenate two vectors to a wider vector
   int32x4_t vcombine_s32(int32x2_t low, int32x2_t high) \
   --> res[0,1] = low, res[2,3] = high
 
-
 NEON: extract half vector
 extract lower or higher half of a vector
 - intrin
@@ -1235,7 +1142,6 @@ extract lower or higher half of a vector
 - example
   int32x2_t vget_high_s32(int32x4_t a) \
   --> res[0] = a[2], res[1] = a[3]
-
 
 NEON: extract lane
 extract one lane from a vector
@@ -1248,7 +1154,6 @@ extract one lane from a vector
 - example
   int32_t vgetq_lane_s32(int32x4_t v, const int lane) \
   --> res = v[lane]
-
 
 NEON: extract from two vectors
 cut a vector from two vectors concatenated
@@ -1274,7 +1179,6 @@ cut a vector from two vectors concatenated
   n = 3    res | b2 | b1 | b0 | a3 |
                +----+----+----+----+
 
-
 NEON: reverse lanes
 reverse lanes in chunk, for endianness adjustment
 - intrin
@@ -1295,7 +1199,6 @@ reverse lanes in chunk, for endianness adjustment
      +----+----+----+----+
  res | a3 | a2 | a1 | a0 |
      +----+----+----+----+
-
 
 NEON: zip lanes
 interleave lanes of two vectors
@@ -1326,7 +1229,6 @@ interleave lanes of two vectors
       +----+----+----+----+
  res3[0] = res1, res3[1] = res2
 
-
 NEON: unzip lanes
 de-interleave lanes from two vectors
 - intrin
@@ -1355,7 +1257,6 @@ de-interleave lanes from two vectors
       +----+----+----+----+
  res3[0] = res1, res3[1] = res2
 
-
 NEON: transpose lanes
 - intrin
   vtrn{,1,2}q_{s,u}{8,16,32,64}
@@ -1380,7 +1281,6 @@ NEON: transpose lanes
       +----+----+----+----+
  res3[0] = res1, res3[1] = res2
 
-
 NEON: table lookup
 - intrin
   vqtbl{1,2,3,4}q_{s,u,p}8
@@ -1389,12 +1289,11 @@ NEON: table lookup
   vqtbx preserves original value if index out of range
 - example
   int8x16_t vqtbl1q_s8(int8x16_t t, uint8x16_t idx) \
-  --> res[n] = t[idx[n]] if idx[n] < 16 else 0
+  --> res[i] = t[idx[i]] if idx[i] < 16 else 0
   int8x16_t vqtbx1q_s8(int8x16_t a, int8x16_t t, uint8x16_t idx) \
-  --> res[n] = t[idx[n]] if idx[n] < 16 else a[n]
+  --> res[i] = t[idx[i]] if idx[i] < 16 else a[i]
   int8x16_t vqtbl2q_s8(int8x16x2_t t, uint8x16_t idx) \
-  --> tt = concat(t[0], t[1]); res[n] = tt[idx[n]] if idx[n] < 32 else 0
-
+  --> tt = concat(t[0], t[1]); res[i] = tt[idx[i]] if idx[i] < 32 else 0
 
 # TODO: crypto, crc, fp16, bf16, complex, dot prod, matrix mul, 3 way eor/bic
 </neon_document>
