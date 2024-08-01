@@ -1379,4 +1379,22 @@ NEON: transpose lanes
  res2 | b3 | a3 | b1 | a1 |
       +----+----+----+----+
  res3[0] = res1, res3[1] = res2
+
+
+NEON: table lookup
+- intrin
+  vqtbl{1,2,3,4}q_{s,u,p}8
+  vqtbx{1,2,3,4}q_{s,u,p}8
+- note
+  vqtbx preserves original value if index out of range
+- example
+  int8x16_t vqtbl1q_s8(int8x16_t t, uint8x16_t idx) \
+  --> res[n] = t[idx[n]] if idx[n] < 16 else 0
+  int8x16_t vqtbx1q_s8(int8x16_t a, int8x16_t t, uint8x16_t idx) \
+  --> res[n] = t[idx[n]] if idx[n] < 16 else a[n]
+  int8x16_t vqtbl2q_s8(int8x16x2_t t, uint8x16_t idx) \
+  --> tt = concat(t[0], t[1]); res[n] = tt[idx[n]] if idx[n] < 32 else 0
+
+
+# TODO: crypto, crc, fp16, bf16, complex, dot prod, matrix mul, 3 way eor/bic
 </neon_document>
