@@ -1176,6 +1176,7 @@ copy one lane of a vector to a lane of another vector
 
 
 NEON: set all lanes to a const
+fill all lanes of a vector with a const
 - intrinc
   v{dup,mov}q_n_{s,u}{8,16,32,64}
   v{dup,mov}q_n_f{32,64}
@@ -1188,6 +1189,7 @@ NEON: set all lanes to a const
 
 
 NEON: set all lanes to a vector lane
+fill all lanes of a vector with one lane of another vector
 - intrin
   vdupq_laneq_{s,u}{8,16,32,64}
   vdupq_laneq_f{32,64}
@@ -1195,6 +1197,17 @@ NEON: set all lanes to a vector lane
 - example
   int32x4_t vdupq_laneq_s32(int32x4_t vec, const int lane) \
   --> res = [vec[lane]]*4
+
+
+NEON: set one lane of a vecotr
+fill one specific lane of a vector with a const
+- intrin
+  vsetq_lane_{s,u}{8,16,32,64}
+  vsetq_lane_f{32,64}
+  vsetq_lane_p{8,16,64}
+- example
+  int32x4_t vsetq_lane_s32(int32_t a, int32x4_t v, const int lane) \
+  --> res = v, res[lane] = a
 
 
 NEON: reverse bits
@@ -1282,4 +1295,88 @@ reverse lanes in chunk, for endianness adjustment
      +----+----+----+----+
  res | a3 | a2 | a1 | a0 |
      +----+----+----+----+
+
+
+NEON: zip lanes
+interleave lanes of two vectors
+- intrin
+  vzip{,1,2}q_{s,u}{8,16,32,64}
+  vzip{,1,2}q_f{32,64}
+  vzip{,1,2}q_p{8,16,64}
+- note
+  vzip1q: keep lower half
+  vzip2q: keep higher half
+  vzipq:  keep all result in a x2 vector
+- example
+  int32x4_t res1 = vzip1q_s32(int32x4_t a, int32x4_t b)
+  int32x4_t res2 = vzip2q_s32(int32x4_t a, int32x4_t b)
+  int32x4x2_t res3 = vzipq_s32(int32x4_t a, int32x4_t b)
+      +----+----+----+----+
+  a   | a3 | a2 | a1 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+  b   | b3 | b2 | b1 | b0 |
+      +----+----+----+----+
+ ---------------------------
+      +----+----+----+----+
+ res1 | b1 | a1 | b0 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+ res2 | b3 | a3 | b2 | a2 |
+      +----+----+----+----+
+ res3[0] = res1, res3[1] = res2
+
+
+NEON: unzip lanes
+de-interleave lanes from two vectors
+- intrin
+  vuzp{,1,2}q_{s,u}{8,16,32,64}
+  vuzp{,1,2}q_f{32,64}
+  vuzp{,1,2}q_p{8,16,64}
+- vuzp1q: keep even indexed lanes
+  vuzp2q: keep odd indexed lanes
+  vuzpq:  keep all elements in a x2 vector
+- example
+  int32x4_t res1 = vuzp1q_s32(int32x4_t a, int32x4_t b)
+  int32x4_t res2 = vuzp2q_s32(int32x4_t a, int32x4_t b)
+  int32x4x2_t res3 = vuzipq_s32(int32x4_t a, int32x4_t b)
+      +----+----+----+----+
+  a   | a3 | a2 | a1 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+  b   | b3 | b2 | b1 | b0 |
+      +----+----+----+----+
+ ---------------------------
+      +----+----+----+----+
+ res1 | b2 | b0 | a2 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+ res2 | b3 | b1 | a3 | a1 |
+      +----+----+----+----+
+ res3[0] = res1, res3[1] = res2
+
+
+NEON: transpose lanes
+- intrin
+  vtrn{,1,2}q_{s,u}{8,16,32,64}
+  vtrn{,1,2}q_f{32,64}
+  vtrn{,1,2}q_p{8,16,64}
+- example
+  int32x4_t res1 = vtrn1q_s32(int32x4_t a, int32x4_t b)
+  int32x4_t res2 = vtrn2q_s32(int32x4_t a, int32x4_t b)
+  int32x4x2_t res3 = vuzipq_s32(int32x4_t a, int32x4_t b)
+      +----+----+----+----+
+  a   | a3 | a2 | a1 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+  b   | b3 | b2 | b1 | b0 |
+      +----+----+----+----+
+ ---------------------------
+      +----+----+----+----+
+ res1 | b2 | a2 | b0 | a0 |
+      +----+----+----+----+
+      +----+----+----+----+
+ res2 | b3 | a3 | b1 | a1 |
+      +----+----+----+----+
+ res3[0] = res1, res3[1] = res2
 </neon_document>
