@@ -1,0 +1,4 @@
+# copy this file to .env, set api keys
+
+OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ANTHROPIC_API_KEY=yyyyyyyyyyyyyyyyyyyyyyyyyyyyy
