@@ -2,3 +2,6 @@
 
 OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ANTHROPIC_API_KEY=yyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+#HTTP_PROXY=socks5://192.168.29.1:8051
+#HTTPS_PROXY=socks5://192.168.29.1:8051
