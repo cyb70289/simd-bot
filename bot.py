@@ -7,6 +7,8 @@ import asyncio
 import os
 
 
+default_max_token = 2048
+default_temperature = 0.6
 models = {
     'haiku3':     ('anthropic', 'claude-3-haiku-20240307'),
     'sonnet3.5':  ('anthropic', 'claude-3-5-sonnet-20240620'),
@@ -62,8 +64,8 @@ class AsyncAnthropicClient:
         async with self.client.messages.stream(
             messages=self.messages,
             model=self.model,
-            max_tokens=1024,
-            temperature=0.6,
+            max_tokens=default_max_token,
+            temperature=default_temperature,
         ) as stream:
             async for text in stream.text_stream:
                 print(text, end='', flush=True)
