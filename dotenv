@@ -2,6 +2,7 @@
 
 OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ANTHROPIC_API_KEY=yyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+DEEPSEEK_API_KEz=zzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 
 #HTTP_PROXY=socks5://192.168.29.1:8051
 #HTTPS_PROXY=socks5://192.168.29.1:8051
