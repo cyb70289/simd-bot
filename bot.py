@@ -12,10 +12,10 @@ from dotenv import load_dotenv
 default_max_tokens = 2048
 default_temperature = 0.6
 models = {
-    'haiku3':     ('anthropic', 'claude-3-haiku-20240307'),
-    'sonnet3.5':  ('anthropic', 'claude-3-5-sonnet-20240620'),
-    'gpt4o-mini': ('openai',    'gpt-4o-mini-2024-07-18'),
-    'gpt4o':      ('openai',    'gpt-4o-2024-08-06'),
+    'haiku3.5':   ('anthropic', 'claude-3-5-haiku-latest'),
+    'sonnet3.5':  ('anthropic', 'claude-3-5-sonnet-latest'),
+    'gpt4o-mini': ('openai',    'gpt-4o-mini'),
+    'gpt4o':      ('openai',    'gpt-4o'),
     'deepseek':   ('deepseek',  'deepseek-coder'),
 }
 
